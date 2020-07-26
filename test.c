@@ -1,18 +1,22 @@
-#include "common.h"
-#include "lsfun.h"
+// A C/C++ program for splitting a string 
+// using strtok() 
+#include <stdio.h> 
+#include <string.h> 
 
-int main()
-{
-	char *msg, *m;
-	m = (char *) malloc(200 * sizeof(char));
-	msg = m;
-	//msg[4] = 0;
-	strncpy(m, "hello", 6);
-	int val = strcmp(msg, "hello");
-	if( val == 0)
-		printf("yes\n");
-	printf("length:%ld\t%s\n", strlen(m), m);
-	printf("length:%ld\t%s\n",strlen(msg), msg);
-	printf("length ls :%ld\n", strlen("ls"));
-	return 0;
-}
+int main() 
+{ 
+	char *str = "Geeks for Geeks\nsekhar\npariga\ndis"; 
+	printf("size of arry:%ld\n", strlen(str));
+	// Returns first token 
+	char* token = strtok(str, " "); 
+
+	// Keep printing tokens while one of the 
+	// delimiters present in str[]. 
+	while (token != NULL) { 
+		printf("len:%ld\t%s\n", strlen(token), token); 
+		token = strtok(NULL, " "); 
+	} 
+
+	return 0; 
+} 
+
