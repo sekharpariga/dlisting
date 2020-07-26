@@ -28,5 +28,4 @@ struct msg
 	int len;
 };
 
-
 #endif
