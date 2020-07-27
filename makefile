@@ -1,10 +1,10 @@
 CC=gcc
 CFLAGS=-g -Wall -Wextra -pedantic 
 
-all : lsfun.o server.o client.o test
+all : lsfun.o server.o client.o test request.o
 
-server.o: server.c lsfun.a
-	$(CC) $(CFLAGS) server.c -o server.o lsfun.a
+server.o: server.c lsfun.o request.o
+	$(CC) $(CFLAGS) server.c lsfun.o request.o -o server.o
 
 client.o: client.c
 	$(CC) $(CFLAGS)  client.c -o client.o
@@ -12,8 +12,9 @@ client.o: client.c
 lsfun.o: lsfun.c
 	$(CC) -c lsfun.c -o lsfun.o
 
-lsfun.a: lsfun.o
-	ar rcs lsfun.a lsfun.o
+request.o: request.c
+	$(CC) -c request.c -o request.o
+
 test: test.c lsfun.o
 	$(CC) $(CFLAGS) test.c lsfun.o -o test.o
 clean:

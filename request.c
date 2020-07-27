@@ -28,18 +28,3 @@ struct parsedata * clientrequest(char data[] )
 	
 	return pdata;
 }
-void disrequest(struct parsedata *data)
-{
-	printf("%s-->%s\n", data->cmd, data->arg);
-}
-
-int main()
-{
-	char arry[] = " Pariga sekhar  \n";
-	disrequest(clientrequest(arry));
-
-	char arry2[] = "b a";
-	disrequest(clientrequest(arry2));
-
-	return 0;
-}

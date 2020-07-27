@@ -3,8 +3,9 @@
 int main()
 {
 	int clifd, nochar;
-	char buffer[BUFSIZE];
+	char *buffer, *temp;
 	struct sockaddr_in seraddr;
+	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	
 	seraddr.sin_family = AF_INET;
 	seraddr.sin_port = htons(PORT);
@@ -13,10 +14,31 @@ int main()
 	
 	if(connect(clifd, (struct sockaddr *) &seraddr, sizeof(seraddr)) < 0)
 		exit(5);
-	while(1)
+
+	while(true)
 	{
-		nochar = read(0,buffer, 4);
-		if(nochar > 1)
+		nochar = read(0, buffer, BUFSIZE);
+		printf("first len :%d\n", nochar);
+		while(isspace( *buffer))
+		{
+			buffer++;
+			nochar--;
+		}
+
+		temp = buffer + nochar;
+
+		while(isspace(*temp))
+		{
+			temp--;
+			nochar--;
+		}
+
+		temp[1] = 0;
+		temp = NULL;
+
+		printf("after trim len :%d\n", nochar);
+		printf("-%s-\n", buffer);
+		if(nochar > 0)
 		{
 			nochar = write(clifd,buffer,nochar);
 			nochar = read(clifd, buffer, BUFSIZE);
@@ -30,6 +52,7 @@ int main()
 
 		if(nochar < 0)
 			write(clifd, "bye", sizeof("bye"));
+		buffer[0] = 0;
 	}
 
 	return 0;

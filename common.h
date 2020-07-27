@@ -11,14 +11,17 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "lsfun.h"
+#include "request.h"
 
 #define BUFSIZE 4096
 #define CMDBUFSIZE 5
 #define PORT 54321
+#define true 1
 
 char *pwdfun();
-char *cdfun();
+char *cdfun(char *);
 char *byefun();
 char *lsfun();
 

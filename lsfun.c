@@ -5,8 +5,7 @@ char *lsfun()
 {
 	DIR *directory;
 	int status, len, cpylen = 0;
-	char *tmprec;
-	char *filectime;
+	char *tmprec, *filectime;
 	struct dirent *dir;
 	struct stat type;
 
@@ -16,7 +15,7 @@ char *lsfun()
 	int msglen = 0;
 
 	if(tmp == NULL && ret == NULL)
-		perror("malloc Error\n");
+		perror("malloc error\n");
 
 	if(directory)
 	{
@@ -40,12 +39,10 @@ char *lsfun()
 				tmp[len] = 0;
 				cpylen = strlen(tmp);
 				cpylen = (msglen + cpylen) < BUFSIZE ? cpylen : (BUFSIZE - msglen - 1);
-				printf("copylen :%d msglen :%d\n", cpylen, msglen);
 				if(cpylen > 0)
 				{
 					strncpy(ret + msglen, tmp, cpylen);
 					msglen += cpylen;
-					//printf("%s\n", tmp);
 				}
 				else
 					break;
@@ -59,6 +56,6 @@ char *lsfun()
 		ret[BUFSIZE] = 0;
 
 	printf("full lenth:%d\n", msglen);
-
+	free(tmp);
 	return ret;
 }
