@@ -1,5 +1,5 @@
 #ifndef __LSFUN__H
-#define __LSFUN_H
+#define __LSFUN__H
 
 char * lsfun();
 
