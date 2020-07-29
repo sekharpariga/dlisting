@@ -2,8 +2,8 @@
 
 int main()
 {
-	int clifd, nochar;
-	char *buffer, *temp;
+	int clifd, msgsize;
+	char *buffer, *buffertemp, *temp;
 	struct sockaddr_in seraddr;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	
@@ -18,40 +18,38 @@ int main()
 
 	while(true)
 	{
-		nochar = read(0, buffer, BUFSIZE);
-		printf("first len :%d\n", nochar);
-		while(isspace(*buffer))
+		buffertemp = buffer;
+		buffer = buffer + sizeof(int);
+		msgsize = read(0, buffer, BUFSIZE - sizeof(int));
+		printf("client:str len:%d\tbuffer:%s\n", msgsize, buffer);
+
+
+		if(msgsize > 0)
 		{
-			buffer++;
-			nochar--;
-		}
+			temp = buffer + (msgsize - 1);
+	
+			while(isspace(*temp))
+			{
+				temp--;
+				msgsize--;
+			}
 
-		temp = buffer + nochar;
+			temp[1] = 0;
+			buffer = buffertemp;
+			memcpy(buffer, (void *) &msgsize, sizeof(int));
+			printf("client:trimed str len:%d-\tbuffer:%s-\n", msgsize, buffer + sizeof(int));
 
-		while(isspace(*temp))
-		{
-			temp--;
-			nochar--;
-		}
+			msgsize = write(clifd, buffer, msgsize*sizeof(char) + sizeof(int));
+			msgsize = read(clifd, buffer, BUFSIZE);
 
-		temp[1] = 0;
-		temp = NULL;
-
-		printf("after trim len :%d\n", nochar);
-		printf("-%s-\n", buffer);
-		if(nochar > 0)
-		{
-			nochar = write(clifd,buffer,nochar);
-			nochar = read(clifd, buffer, BUFSIZE);
-
-			if(nochar < BUFSIZE)
-				buffer[nochar] = 0;
+			if(msgsize < BUFSIZE)
+				buffer[msgsize] = 0;
 			else
 				buffer[BUFSIZE] = 0;
-			printf("server message received\n%s\n", buffer);
+			printf("server:str len:%d\t:%s\n", msgsize, buffer);
 		}
 
-		if(nochar < 0)
+		if(msgsize < 0)
 			write(clifd, "bye", sizeof("bye"));
 
 		memset(buffer, 0, BUFSIZE);

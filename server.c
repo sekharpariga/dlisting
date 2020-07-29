@@ -2,20 +2,14 @@
 
 int serfd, clifd;
 
-char * byefun()
-{
-	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
-	strncpy(ret, "bye", 4);
-	return ret;
-}
-
 char * cdfun(char *path)
 {
-	printf("in pwdfun\n");
-	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
+	printf("in cdfun\n");
+	int flag = chdir(path);
 	printf("%s\n", path);
-	strncpy(ret, "cdfun", 6);
-	return ret;
+	if(flag == 0)
+		return strdup("cdfun");
+	return NULL;
 }
 
 char * pwdfun()
@@ -26,7 +20,7 @@ char * pwdfun()
 	if(flag == NULL)
 	{
 		free(ret);
-		ret = strdup("error in getting current dir");
+		ret = strdup("getcwd error");
 	}
 	flag = NULL;
 	return ret;
@@ -35,19 +29,26 @@ char * pwdfun()
 
 int handleClient(int clifd)
 {
-	char *buffer;
+	char *buffer, *buffertemp;
 	struct parsedata *task;
-	int nbytes = 0;
+	int nbytes, msgsize;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
+	buffertemp = buffer;
 	nbytes = read(clifd, buffer, BUFSIZE);
-	printf("len:%d\n", nbytes);
+	memcpy(&msgsize, buffer, sizeof(int));
+	buffer = buffer + sizeof(int);
 
 	if(nbytes > 0) 
 	{
-		buffer[nbytes-1] = 0;
-		task = clientrequest(buffer);
-		free(buffer);
+		buffer[msgsize] = 0;
+		printf("client:readsize:%d\tmsgsize:%d\tbuffer:%s-\n", nbytes, msgsize, buffer);
+		char *fbuffer = (char *) malloc((msgsize + 1) * sizeof(char) );
+		strncpy(fbuffer, buffer, msgsize);
+		fbuffer[msgsize] = 0;
+		task = clientrequest(fbuffer);
+		free(buffertemp);
 		buffer = NULL;
+		printf("client:cmd:%s-\targ:%s-\n", task->cmd, task->arg);
 
 		if(task->cmd != NULL)
 		{
@@ -61,21 +62,22 @@ int handleClient(int clifd)
 				buffer = NULL;
 			else
 				buffer = NULL;
-			printf("buffer --->\n%s\n", buffer);
 
+			if(buffer != NULL)
+				printf("client:fun:buffer:%s-\n", buffer);
 		}
 
 		if(buffer != NULL && strlen(buffer) > 0)
 			nbytes = send(clifd, buffer, strlen(buffer), 0);
 		else
-			nbytes = send(clifd, "bye", strlen("bye"), 0);
+			nbytes = send(clifd, "server:wrong inp\n", strlen("server:wrong inp\n"), 0);
 	
 		free(buffer);
 	}
 	else
 	{
 		free(buffer);
-		send(clifd, "no request", strlen("no request"), 0);
+		send(clifd, "server:no request\n", strlen("server:no request\n"), 0);
 		nbytes = 0;
 	}
 	return nbytes;

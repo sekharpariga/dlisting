@@ -1,6 +1,6 @@
 #include "request.h"
 
-struct parsedata * clientrequest(char data[] )
+struct parsedata * clientrequest(char *data)
 {
 	struct parsedata *pdata = (struct parsedata *) malloc(sizeof(struct parsedata));
 	int len = 0;
