@@ -45,7 +45,7 @@ int handleClient(int clifd)
 		char *fbuffer = (char *) malloc((msgsize + 1) * sizeof(char) );
 		strncpy(fbuffer, buffer, msgsize);
 		fbuffer[msgsize] = 0;
-		task = clientrequest(fbuffer);
+		task = clientrequest(fbuffer, msgsize + 1);
 		free(buffertemp);
 		buffer = NULL;
 		printf("client:cmd:%s-\targ:%s-\n", task->cmd, task->arg);

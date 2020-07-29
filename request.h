@@ -9,6 +9,6 @@ struct parsedata
 	char *arg;
 };
 
-struct parsedata * clientrequest(char * data);
+struct parsedata * clientrequest(char * data, int msgsize);
 
 #endif
