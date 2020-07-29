@@ -11,6 +11,7 @@ char * byefun()
 
 char * cdfun(char *path)
 {
+	printf("in pwdfun\n");
 	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
 	printf("%s\n", path);
 	strncpy(ret, "cdfun", 6);
@@ -19,9 +20,15 @@ char * cdfun(char *path)
 
 char * pwdfun()
 {
-
+	char *flag;
 	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
-	strncpy(ret, "pwdfun", 7);
+	flag = getcwd(ret, (BUFSIZE * sizeof(char) - sizeof(char)));
+	if(flag == NULL)
+	{
+		free(ret);
+		ret = strdup("error in getting current dir");
+	}
+	flag = NULL;
 	return ret;
 }
 
@@ -88,13 +95,13 @@ int main()
 	if(serfd == 0)
 		exit(1);
 	
-	if(setsockopt(serfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+	if(setsockopt(serfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | TCP_NODELAY, &opt, sizeof(opt)))
 	       exit(6);
 
 	if(bind(serfd,(struct sockaddr *) &address, addrlen) != 0)
 		exit(2);
 
-	if(listen(serfd, 100000) != 0)
+	if(listen(serfd, MAXCONN) != 0)
 		exit(3);
 
 	if((clifd = accept(serfd, (struct sockaddr *) &address, (socklen_t *) &addrlen )) <= 0)

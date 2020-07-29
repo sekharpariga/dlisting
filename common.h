@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,6 +20,8 @@
 
 #define BUFSIZE 4096
 #define CMDBUFSIZE 5
+#define MAXCONN 1000
+#define SERVERIP "127.0.0.1"
 #define PORT 54321
 #define true 1
 

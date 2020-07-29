@@ -8,6 +8,7 @@ int main()
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	
 	seraddr.sin_family = AF_INET;
+	seraddr.sin_addr.s_addr = inet_addr(SERVERIP);
 	seraddr.sin_port = htons(PORT);
 
 	clifd = socket(AF_INET,SOCK_STREAM, 0);
@@ -19,7 +20,7 @@ int main()
 	{
 		nochar = read(0, buffer, BUFSIZE);
 		printf("first len :%d\n", nochar);
-		while(isspace( *buffer))
+		while(isspace(*buffer))
 		{
 			buffer++;
 			nochar--;
@@ -52,7 +53,8 @@ int main()
 
 		if(nochar < 0)
 			write(clifd, "bye", sizeof("bye"));
-		buffer[0] = 0;
+
+		memset(buffer, 0, BUFSIZE);
 	}
 
 	return 0;
