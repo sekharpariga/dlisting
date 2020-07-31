@@ -1,11 +1,25 @@
 #include "common.h"
 #define st_time st_ctime.tv_sec
 
+char *rtrim(char *data)
+{
+	char *tmp;
+	int size = strlen(data);
+	tmp = data + size;
+	while(isspace(*tmp))
+	{
+		tmp--;
+		size--;
+	}
+	tmp[1] = 0;
+	return data;
+}
+
 char *lsfun()
 {
 	DIR *directory;
 	int status, len, cpylen = 0;
-	char *tmprec, *filectime;
+	char *space, *filectime;
 	struct dirent *dir;
 	struct stat type;
 
@@ -14,8 +28,8 @@ char *lsfun()
 	char *ret = (char *) malloc(BUFSIZE * sizeof(char));
 	int msglen = 0;
 
-	if(tmp == NULL && ret == NULL)
-		perror("malloc error\n");
+	if(tmp == NULL || ret == NULL)
+		perror("malloc buffer allocation error\n");
 
 	if(directory)
 	{
@@ -27,18 +41,19 @@ char *lsfun()
 
 			if(status == 0)
 			{
-				filectime = ctime(&type.st_ctime);		//st_birthtime is not available
+				filectime = ctime(&type.st_ctime);
 				len = sizeof("\t") * 2 + strlen(dir->d_name) + strlen(filectime) + 1;
-				len = dir->d_type == DT_REG ? len + 4: len + 3 ; 	//4 ---> strlen("file"), 3 ---> strlen("dir")
-
+				len = dir->d_type == DT_REG ? len + 4: len + 3 ;
+				
 				if(dir->d_type != DT_REG)
-					snprintf(tmp, BUFSIZE, "dir\t%s\t%s", dir->d_name, filectime);
+					snprintf(tmp, BUFSIZE, "dir\t%s\t%s", rtrim(dir->d_name), filectime);
 				else
-					snprintf(tmp, BUFSIZE, "file\t%s\t%s", dir->d_name, filectime);
+					snprintf(tmp, BUFSIZE, "file\t%s\t%s", rtrim(dir->d_name), filectime);
 
 				tmp[len] = 0;
 				cpylen = strlen(tmp);
 				cpylen = (msglen + cpylen) < BUFSIZE ? cpylen : (BUFSIZE - msglen - 1);
+
 				if(cpylen > 0)
 				{
 					strncpy(ret + msglen, tmp, cpylen);
@@ -47,6 +62,8 @@ char *lsfun()
 				else
 					break;
 			}
+			else
+				strcpy(ret, "error in lsfun");
 		}
 	}
 
@@ -55,7 +72,6 @@ char *lsfun()
 	else
 		ret[BUFSIZE] = 0;
 
-	printf("full lenth:%d\n", msglen);
 	free(tmp);
 	return ret;
 }

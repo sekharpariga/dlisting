@@ -34,11 +34,15 @@ int main()
 
 			temp[1] = 0;
 			buffer = buffertemp;
-
 			memcpy(buffer, &msgsize, sizeof(int));
-			printf("sending:%s-\n",buffer + sizeof(int));
 
 			write(socketfd, buffer, msgsize*sizeof(char) + sizeof(int));
+
+			if(strncmp(buffer + sizeof(int), "bye", sizeof("bye")) == 0)
+			{
+				exit(0);
+				free(buffer);
+			}
 			msgsize = read(socketfd, buffer, BUFSIZE);
 
 			if(msgsize < BUFSIZE)
@@ -50,5 +54,7 @@ int main()
 		}
 		memset(buffer, 0, BUFSIZE);
 	}
+	free(buffer);
+	close(socketfd);
 	return 0;
 }

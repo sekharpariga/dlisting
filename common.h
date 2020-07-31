@@ -26,15 +26,4 @@
 #define PORT 54321
 #define true 1
 
-char *pwdfun();
-char *cdfun(char *);
-char *byefun();
-char *lsfun();
-
-struct msg
-{
-	char *message;
-	int len;
-};
-
 #endif

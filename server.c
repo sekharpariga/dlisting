@@ -22,7 +22,7 @@ int handleClient(int clientfd)
 {
 	char *buffer, *buffertemp;
 	struct parsedata *task;
-	int nbytes, msgsize;
+	int nbytes = 0, msgsize = 0;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
 
@@ -36,7 +36,6 @@ int handleClient(int clientfd)
 		task = clientrequest(buffer, msgsize + 1);
 		free(buffertemp);
 		buffer = NULL;
-		printf("client request::%s-\targ:%s-\n", task->cmd, task->arg);
 
 		if(task->cmd != NULL)
 		{
@@ -46,8 +45,8 @@ int handleClient(int clientfd)
 				buffer = cdfun(task->arg);
 			else if(strcmp(task->cmd, "pwd") == 0)
 				buffer = pwdfun();
-			else if(strcmp(task->cmd, "byte") == 0)
-				buffer = NULL;
+			else if(strcmp(task->cmd, "bye") == 0)
+				return -1;
 		}
 
 		if(buffer != NULL && strlen(buffer) > 0)
@@ -85,11 +84,13 @@ int main()
 	if(listen(serverfd, MAXCONN) != 0)
 		exit(3);
 
-	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen )) <= 0)
+	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) <= 0)
 		exit(4);
 	else
 		while(true)
-			if(handleClient(clientfd) == 0)
+			if(handleClient(clientfd) == -1)
 				break;
+	close(serverfd);
+	close(clientfd);
 	return 0;
 }

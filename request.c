@@ -1,11 +1,10 @@
 #include "request.h"
 
-struct parsedata * clientrequest(char *data, int msgsize)
+struct parsedata *clientrequest(char *data, int msgsize)
 {
 	int cmdstart = 0, argstart = 0, cmdlen = 0, arglen = 0, index = 0;
 	char *temp = data, *cmd = NULL, *arg = NULL;
 	struct parsedata *pdata = (struct parsedata *) malloc(sizeof(struct parsedata));
-	printf("data:fun:clientrequest:%s-\n", data);
 
 	while(*data == ' '  && index < msgsize) 
 	{
@@ -22,6 +21,7 @@ struct parsedata * clientrequest(char *data, int msgsize)
 	}
 	
 	argstart = cmdstart + cmdlen;
+
 	while(*data == ' ' && index < msgsize)
 	{
 		argstart++;
