@@ -1,25 +1,11 @@
 #include "common.h"
 #define st_time st_ctime.tv_sec
 
-char *rtrim(char *data)
-{
-	char *tmp;
-	int size = strlen(data);
-	tmp = data + size;
-	while(isspace(*tmp))
-	{
-		tmp--;
-		size--;
-	}
-	tmp[1] = 0;
-	return data;
-}
-
 char *lsfun()
 {
 	DIR *directory;
-	int status, len, cpylen = 0;
-	char *space, *filectime;
+	int status, len, cpylen = 0, space = 0;
+	char *filectime;
 	struct dirent *dir;
 	struct stat type;
 
@@ -42,13 +28,13 @@ char *lsfun()
 			if(status == 0)
 			{
 				filectime = ctime(&type.st_ctime);
-				len = sizeof("\t") * 2 + strlen(dir->d_name) + strlen(filectime) + 1;
+				len = sizeof("\t") * 3 + strlen(dir->d_name) + strlen(filectime) + 1;
 				len = dir->d_type == DT_REG ? len + 4: len + 3 ;
 				
 				if(dir->d_type != DT_REG)
-					snprintf(tmp, BUFSIZE, "dir\t%s\t%s", rtrim(dir->d_name), filectime);
+					snprintf(tmp, BUFSIZE, "dir\t%s\t\t%s", dir->d_name, filectime);
 				else
-					snprintf(tmp, BUFSIZE, "file\t%s\t%s", rtrim(dir->d_name), filectime);
+					snprintf(tmp, BUFSIZE, "file\t%s\t\t%s", dir->d_name, filectime);
 
 				tmp[len] = 0;
 				cpylen = strlen(tmp);
