@@ -5,7 +5,7 @@ int serverfd, clientfd;
 char *cdfun(char *path)
 {
 	int flag = chdir(path);
-	if(!flag)
+	if(flag)
 		return strdup("worng dir\n");
 	return strdup("dir changed!\n");
 }
