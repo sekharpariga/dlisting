@@ -7,14 +7,24 @@ char *cdfun(char *path)
 	int flag = chdir(path);
 	if(flag)
 		return strdup("worng dir\n");
-	return strdup("dir changed!\n");
+	return strdup(" ");
 }
 
 char *pwdfun()
 {
 	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
+	if(ret == NULL)
+		return strdup("malloc error\n");
 	if(getcwd(ret, BUFSIZE) == NULL)
+	{
+		free(ret);
 		ret = strerror(errno);
+	}
+	if(strlen(ret) < BUFSIZE-1)
+	{
+		ret[strlen(ret)] = '\n';
+		ret[strlen(ret) +1] = 0;
+	}
 	return ret;
 }
 
@@ -30,12 +40,11 @@ int handleClient(int clientfd)
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
 
-	if(nbytes > 0) 
+	if(msgsize > 0) 
 	{
 		buffer[msgsize] = 0;
 		task = clientrequest(buffer, msgsize + 1);
 		free(buffertemp);
-		buffer = NULL;
 
 		if(task->cmd != NULL)
 		{
@@ -46,19 +55,25 @@ int handleClient(int clientfd)
 			else if(strcmp(task->cmd, "pwd") == 0)
 				buffer = pwdfun();
 			else if(strcmp(task->cmd, "bye") == 0)
+			{
+				free(buffer);
 				return -1;
+			}
+			else
+			{
+				free(buffer);
+				return 0;
+			}
 		}
 
 		if(buffer != NULL && strlen(buffer) > 0)
 			nbytes = send(clientfd, buffer, strlen(buffer), 0);
-		else
-			nbytes = send(clientfd, "Wrong Input", strlen("Wrong Input"), 0);
 	}
 	else
 		send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
-
-	free(buffer);
-	return nbytes;
+	if(buffer != NULL)
+		free(buffer);
+	return 0;
 }
 
 int main()
@@ -87,9 +102,7 @@ int main()
 	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) <= 0)
 		exit(4);
 	else
-		while(true)
-			if(handleClient(clientfd) == -1)
-				break;
+		handleClient(clientfd)
 	close(serverfd);
 	close(clientfd);
 	return 0;
