@@ -28,15 +28,15 @@ char *pwdfun()
 	return ret;
 }
 
-int handleClient(int clientfd)
+int handleclient(int clientfd)
 {
 	char *buffer, *buffertemp;
 	struct parsedata *task;
-	int nbytes = 0, msgsize = 0;
+	int msgsize = 0;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
 
-	nbytes = read(clientfd, buffer, BUFSIZE);
+	read(clientfd, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
 
@@ -55,31 +55,30 @@ int handleClient(int clientfd)
 			else if(strcmp(task->cmd, "pwd") == 0)
 				buffer = pwdfun();
 			else if(strcmp(task->cmd, "bye") == 0)
-			{
-				free(buffer);
 				return -1;
-			}
 			else
-			{
-				free(buffer);
-				return 0;
-			}
+				buffer = NULL;
 		}
 
 		if(buffer != NULL && strlen(buffer) > 0)
-			nbytes = send(clientfd, buffer, strlen(buffer), 0);
+			send(clientfd, buffer, strlen(buffer), 0);
+		else
+			send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
+
 	}
 	else
 		send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
+
 	if(buffer != NULL)
 		free(buffer);
-	return 0;
+
+	return msgsize;
 }
 
 int main()
 {
 	struct sockaddr_in address;
-	int addrlen = sizeof(address), opt = 1;
+	int addrlen = sizeof(address), opt = 1, ret = 0;
 
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -96,13 +95,17 @@ int main()
 	if(bind(serverfd,(struct sockaddr *) &address, addrlen) != 0)
 		exit(2);
 
-	if(listen(serverfd, MAXCONN) != 0)
+	if(listen(serverfd, BACKLOG) != 0)
 		exit(3);
 
-	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) <= 0)
+	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0)
 		exit(4);
 	else
-		handleClient(clientfd)
+		do{
+			ret = handleclient(clientfd);
+			printf("ret :%d\n",ret);
+		}while(ret > 0);
+
 	close(serverfd);
 	close(clientfd);
 	return 0;
