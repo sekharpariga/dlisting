@@ -1,6 +1,10 @@
 #include "common.h"
 
 int serverfd, clientfd;
+struct sockaddr_in address;
+int addrlen = sizeof(address), opt = 1, ret = 0;
+pthread_t thread_id[THREADPOOL];
+pthread_mutex_t lock;
 
 char *cdfun(char *path)
 {
@@ -28,11 +32,11 @@ char *pwdfun()
 	return ret;
 }
 
-int handleclient(int clientfd)
+int handleclient(int *client_socket)
 {
 	char *buffer, *buffertemp;
 	struct parsedata *task;
-	int msgsize = 0;
+	int msgsize = 0, clientfd = *client_socket;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
 
@@ -75,14 +79,34 @@ int handleclient(int clientfd)
 	return msgsize;
 }
 
+void *threadhandle(void *arg)
+{
+	int *pclient;
+	while(true)
+	{
+		pthread_mutex_lock(&lock);
+		pclient = dequeue();
+		pthread_mutex_unlock(&lock);
+		if(pclient != NULL)
+			while(handleclient(pclient) == -1)
+				break;
+	}
+	return NULL;
+}
+
 int main()
 {
-	struct sockaddr_in address;
-	int addrlen = sizeof(address), opt = 1, ret = 0;
 
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(PORT);
+	int *pclient;
+	
+	if(pthread_mutex_init(&lock, NULL) != 0)
+	{
+		perror("mutex lock init failed!\n");
+		exit(-1);
+	}
 
 	serverfd = socket(AF_INET,SOCK_STREAM, 0);
 
@@ -98,15 +122,29 @@ int main()
 	if(listen(serverfd, BACKLOG) != 0)
 		exit(3);
 
-	if((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0)
-		exit(4);
-	else
-		do{
-			ret = handleclient(clientfd);
-			printf("ret :%d\n",ret);
-		}while(ret > 0);
+	for(int i = 0; i < THREADPOOL; i++)
+	{
+		pthread_create(&(thread_id[i]), NULL, &threadhandle, NULL);
+		pthread_join(thread_id[i], NULL);
+	}
+
+	while(true)
+	{
+		if ((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0)
+		{
+			printf("new conn:%d\n", clientfd);
+			pclient = (int *) malloc(sizeof(int));
+			if(pclient == NULL)
+				perror("malloc error\n");
+			else
+			{
+				pthread_mutex_lock(&lock);
+				enqueue(pclient);
+				pthread_mutex_lock(&lock);
+			}
+		}
+	}
 
 	close(serverfd);
-	close(clientfd);
 	return 0;
 }
