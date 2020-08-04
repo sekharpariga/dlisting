@@ -3,9 +3,12 @@
 node_t *head = NULL;
 node_t *tail = NULL;
 
+extern pthread_mutex_t lock;
+
 void enqueue(int *client_socket)
 {
 	node_t *newnode = malloc(sizeof(node_t));
+	pthread_mutex_lock(&lock);
 	if(newnode != NULL)
 	{
 		newnode->client_socket = client_socket;
@@ -16,6 +19,7 @@ void enqueue(int *client_socket)
 			tail->next =  newnode;
 		tail = newnode;
 	}
+	pthread_mutex_unlock(&lock);
 }
 	
 int *dequeue()
@@ -24,11 +28,13 @@ int *dequeue()
 		return NULL;
 	else
 	{
+		pthread_mutex_lock(&lock);
 		node_t *temp = head;
 		int *result = head->client_socket;
 		head = head->next;
 		if(head == NULL) tail = NULL;
 		free(temp);
 		return result;
+		pthread_mutex_unlock(&lock);
 	}
 }

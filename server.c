@@ -125,8 +125,8 @@ int main()
 	for(int i = 0; i < THREADPOOL; i++)
 	{
 		pthread_create(&(thread_id[i]), NULL, &threadhandle, NULL);
-		pthread_join(thread_id[i], NULL);
 	}
+
 
 	while(true)
 	{
@@ -146,5 +146,11 @@ int main()
 	}
 
 	close(serverfd);
+
+	for(int i = 0; i < THREADPOOL; i++)
+	{
+		pthread_join(thread_id[i], NULL);
+	}
+
 	return 0;
 }

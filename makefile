@@ -21,4 +21,4 @@ queue.o: queue.c
 test: test.c lsfun.o
 	$(CC) $(CFLAGS) test.c lsfun.o -o test.o
 clean:
-	rm -f server.o client.o lsfun.o a.out lsfun.a test.o queue.o
+	rm -f server.o client.o lsfun.o a.out lsfun.a test.o queue.o request.o
