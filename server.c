@@ -6,6 +6,15 @@ int addrlen = sizeof(address), opt = 1;
 pthread_t thread_id[THREADPOOL];
 pthread_mutex_t lock;
 
+void signal_handler(int signum)
+{
+	if(signum == SIGINT)
+		printf("received SIGINT\n");
+
+	if(signum == SIGTSTP)
+		printf("received SIGTSTP\n");
+}
+
 char *cdfun(char *path)
 {
 	int flag = chdir(path);
@@ -16,15 +25,15 @@ char *cdfun(char *path)
 
 char *pwdfun()
 {
-	char *ret = (char*) malloc(BUFSIZE * sizeof(char));
+	char *ret = (char*) malloc(PATH_MAX * sizeof(char));
 	if(ret == NULL)
 		return strdup("malloc error\n");
-	if(getcwd(ret, BUFSIZE) == NULL)
+	if(getcwd(ret, PATH_MAX) == NULL)
 	{
 		free(ret);
 		ret = strerror(errno);
 	}
-	if(strlen(ret) < BUFSIZE-1)
+	if(strlen(ret) < PATH_MAX-1)
 	{
 		ret[strlen(ret)] = '\n';
 		ret[strlen(ret) +1] = 0;
@@ -43,6 +52,12 @@ int handleclient(int *client_socket)
 	read(clientfd, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
+
+	if(signal(SIGINT, signal_handler) == SIG_ERR)		//ctrl-c
+		perror("can't catch SIGTERM\n");
+
+	if(signal(SIGTSTP, signal_handler) == SIG_ERR)		//ctrl-z
+		perror("can't catch SIGTSTP\n");
 
 	if(msgsize > 0) 
 	{
@@ -78,7 +93,7 @@ int handleclient(int *client_socket)
 	return msgsize;
 }
 
-void *threadhandle( __attribute__((unused)) void *arg)
+void *threadhandle(__attribute__((unused)) void *arg)
 {
 	int *pclient, ret = 0;
 	do{

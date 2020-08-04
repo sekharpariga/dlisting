@@ -6,6 +6,7 @@
 typedef struct node 
 {
 	int *client_socket;
+	char pwd[PATH_MAX];
 	struct node *next;
 } node_t;
 
