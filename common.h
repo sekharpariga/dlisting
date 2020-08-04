@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <pthread.h>
+#include <signal.h>
 #include "lsfun.h"
 #include "request.h"
 #include "queue.h"
@@ -26,7 +27,8 @@
 #define BACKLOG 2
 #define SERVERIP "127.0.0.1"
 #define PORT 54321
-#define THREADPOOL 1
+#define THREADPOOL 5
 #define true 1
+#define strlcpy strncpy
 
 #endif

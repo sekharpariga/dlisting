@@ -42,7 +42,7 @@ char *lsfun()
 
 				if(cpylen > 0)
 				{
-					strncpy(ret + msglen, tmp, cpylen);
+					strlcpy(ret + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
 				else

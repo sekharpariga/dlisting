@@ -34,7 +34,6 @@ char *pwdfun()
 
 int handleclient(int *client_socket)
 {
-	printf("handleclient1\n");
 	char *buffer, *buffertemp;
 	struct parsedata *task;
 	int msgsize = 0, clientfd = *client_socket;
@@ -76,16 +75,12 @@ int handleclient(int *client_socket)
 
 	if(buffer != NULL)
 		free(buffer);
-	printf("msgsize:%d\n", msgsize);
-
 	return msgsize;
 }
 
-void *threadhandle(void *arg)
+void *threadhandle( __attribute__((unused)) void *arg)
 {
 	int *pclient, ret = 0;
-	printf("thread1\n");
-
 	do{
 		pclient = dequeue();
 
@@ -140,7 +135,6 @@ int main()
 		if ((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) > 0)
 		{
 
-			printf("new conn:%d\n", clientfd);
 			pclient = (int *) malloc(sizeof(int));
 			if(pclient == NULL)
 				perror("malloc error\n");
@@ -150,7 +144,6 @@ int main()
 				enqueue(pclient);
 			}
 		}
-		display();
 	}
 
 	for(int i = 0; i < THREADPOOL; i++)
