@@ -2,7 +2,7 @@
 
 int serverfd, clientfd;
 struct sockaddr_in address;
-int addrlen = sizeof(address), opt = 1, ret = 0;
+int addrlen = sizeof(address), opt = 1;
 pthread_t thread_id[THREADPOOL];
 pthread_mutex_t lock;
 
@@ -34,6 +34,7 @@ char *pwdfun()
 
 int handleclient(int *client_socket)
 {
+	printf("handleclient1\n");
 	char *buffer, *buffertemp;
 	struct parsedata *task;
 	int msgsize = 0, clientfd = *client_socket;
@@ -75,22 +76,31 @@ int handleclient(int *client_socket)
 
 	if(buffer != NULL)
 		free(buffer);
+	printf("msgsize:%d\n", msgsize);
 
 	return msgsize;
 }
 
 void *threadhandle(void *arg)
 {
-	int *pclient;
-	while(true)
-	{
-		pthread_mutex_lock(&lock);
+	int *pclient, ret = 0;
+	printf("thread1\n");
+
+	do{
 		pclient = dequeue();
-		pthread_mutex_unlock(&lock);
+
 		if(pclient != NULL)
-			while(handleclient(pclient) == -1)
-				break;
-	}
+		{
+			do{
+				ret = handleclient(pclient);
+			}while(ret > 0);
+		}
+		else
+			usleep(10);
+
+	}while(true);
+
+	printf("thread closed\n");
 	return NULL;
 }
 
@@ -123,34 +133,29 @@ int main()
 		exit(3);
 
 	for(int i = 0; i < THREADPOOL; i++)
-	{
 		pthread_create(&(thread_id[i]), NULL, &threadhandle, NULL);
-	}
-
 
 	while(true)
 	{
-		if ((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0)
+		if ((clientfd = accept(serverfd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) > 0)
 		{
+
 			printf("new conn:%d\n", clientfd);
 			pclient = (int *) malloc(sizeof(int));
 			if(pclient == NULL)
 				perror("malloc error\n");
 			else
 			{
-				pthread_mutex_lock(&lock);
+				*pclient = clientfd;
 				enqueue(pclient);
-				pthread_mutex_lock(&lock);
 			}
 		}
+		display();
 	}
-
-	close(serverfd);
 
 	for(int i = 0; i < THREADPOOL; i++)
-	{
 		pthread_join(thread_id[i], NULL);
-	}
-
+	
+	close(serverfd);
 	return 0;
 }

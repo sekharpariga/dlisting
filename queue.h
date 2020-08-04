@@ -11,4 +11,6 @@ typedef struct node
 
 void enqueue(int *client_socket);
 int *dequeue();
+void display();
+
 #endif

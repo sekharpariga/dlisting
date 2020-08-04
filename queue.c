@@ -34,7 +34,19 @@ int *dequeue()
 		head = head->next;
 		if(head == NULL) tail = NULL;
 		free(temp);
-		return result;
 		pthread_mutex_unlock(&lock);
+		return result;
 	}
+}
+
+void display()
+{
+	node_t *temp = head;
+
+	while(temp != NULL)
+	{
+		printf("%d->",*(temp->client_socket));
+		temp = temp->next;
+	}
+	printf("\n");
 }

@@ -23,7 +23,7 @@
 
 #define BUFSIZE 4096
 #define CMDBUFSIZE 5
-#define BACKLOG 1000
+#define BACKLOG 2
 #define SERVERIP "127.0.0.1"
 #define PORT 54321
 #define THREADPOOL 1
