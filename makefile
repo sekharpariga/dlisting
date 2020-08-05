@@ -10,7 +10,7 @@ client.o: client.c
 	$(CC) $(CFLAGS)  client.c -o client.o
 
 lsfun.o: lsfun.c
-	$(CC) -c lsfun.c -o lsfun.o -lbsd
+	$(CC) -c lsfun.c -o lsfun.o
 
 request.o: request.c
 	$(CC) -c request.c -o request.o

@@ -28,7 +28,7 @@
 #define BACKLOG 2
 #define SERVERIP "127.0.0.1"
 #define PORT 54321
-#define THREADPOOL 10
+#define THREADPOOL 2
 #define true 1
 #define strlcpy strncpy
 
