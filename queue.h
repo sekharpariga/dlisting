@@ -10,8 +10,8 @@ typedef struct node
 	struct node *next;
 } node_t;
 
-void enqueue(int *client_socket);
-int *dequeue();
+void enqueue(int *client_socket, char *pwd);
+node_t *dequeue();
 void display();
 
 #endif

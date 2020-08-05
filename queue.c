@@ -25,7 +25,7 @@ void enqueue(int *client_socket, char *path)
 	}
 }
 	
-int *dequeue()
+node_t *dequeue()
 {
 	if(head == NULL)
 		return NULL;

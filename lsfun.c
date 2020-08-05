@@ -1,16 +1,17 @@
 #include "common.h"
 #define st_time st_ctime.tv_sec
-extern node_t *pclient;
-
-char *lsfun()
+extern pthread_mutex_t lock;
+char *lsfun(node_t *pclient)
 {
 	DIR *directory;
 	int status, len, cpylen = 0, space = 0;
 	char *filectime;
 	struct dirent *dir;
 	struct stat type;
-
-	directory = opendir(pclient->pwd);
+	pthread_mutex_lock(&lock);
+	chdir(pclient->pwd);
+	directory = opendir(".");
+	pthread_mutex_unlock(&lock);
 	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
 	char *ret = (char *) malloc(BUFSIZE * sizeof(char));
 	int msglen = 0;
