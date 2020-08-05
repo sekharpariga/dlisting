@@ -60,6 +60,7 @@ char *pwdfun(node_t *pclient)
 
 int handleclient(node_t *pclient)
 {
+	printf("serving clientfd:%d\n", *(pclient->client_socket));
 	char *buffer, *buffertemp;
 	struct parsedata *task;
 	int msgsize = 0, clientfd = *(pclient->client_socket);
