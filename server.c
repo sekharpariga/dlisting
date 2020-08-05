@@ -11,10 +11,18 @@ char *pwdfun(node_t *pclient);
 void signal_handler(int signum)
 {
 	if(signum == SIGINT)
-		printf("received SIGINT\n");
+	{
+		printf("received SIGINT exiting\n");
+		usleep(100);
+		exit(0);
+	}
 
 	if(signum == SIGTSTP)
-		printf("received SIGTSTP\n");
+	{
+		printf("received SIGSTP exiting\n");
+		usleep(100);
+		exit(0);
+	}
 }
 
 char *cdfun(char *path, node_t *pclient)
@@ -35,10 +43,10 @@ char *cdfun(char *path, node_t *pclient)
 		}
 		else
 			strdup("Wrong Dir");
-		
 	}
 	else
 		strdup("Wrong dir pclient->pwd");
+	pthread_mutex_unlock(&lock);
 	return strdup(" ");
 }
 
@@ -79,8 +87,6 @@ int handleclient(node_t *pclient)
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
 				free(pclient);
-				if(buffer != NULL)
-					free(buffer);
 				return -1;
 			}
 			else
