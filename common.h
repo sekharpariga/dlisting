@@ -23,6 +23,7 @@
 #include "queue.h"
 
 #define BUFSIZE 4096
+#define PATH_MAX 4096
 #define CMDBUFSIZE 5
 #define BACKLOG 2
 #define SERVERIP "127.0.0.1"

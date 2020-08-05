@@ -1,5 +1,6 @@
 #include "common.h"
 #define st_time st_ctime.tv_sec
+extern node_t *pclient;
 
 char *lsfun()
 {
@@ -9,7 +10,7 @@ char *lsfun()
 	struct dirent *dir;
 	struct stat type;
 
-	directory = opendir(".");
+	directory = opendir(pclient->pwd);
 	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
 	char *ret = (char *) malloc(BUFSIZE * sizeof(char));
 	int msglen = 0;

@@ -23,25 +23,23 @@ char *cdfun(char *path)
 	return strdup(" ");
 }
 
-char *pwdfun()
+char *pwdfun(node_t *pclient)
 {
-	char *ret = (char*) malloc(PATH_MAX * sizeof(char));
-	if(ret == NULL)
+	if(pclient->pwd == NULL)
 		return strdup("malloc error\n");
-	if(getcwd(ret, PATH_MAX) == NULL)
-	{
-		free(ret);
+
+	if(getcwd(pclient->pwd, PATH_MAX) == NULL)
 		ret = strerror(errno);
-	}
+	
 	if(strlen(ret) < PATH_MAX-1)
 	{
 		ret[strlen(ret)] = '\n';
-		ret[strlen(ret) +1] = 0;
+		ret[strlen(ret) + 1] = 0;
 	}
 	return ret;
 }
 
-int handleclient(int *client_socket)
+int handleclient(node_t *pclient)
 {
 	char *buffer, *buffertemp;
 	struct parsedata *task;
@@ -49,7 +47,7 @@ int handleclient(int *client_socket)
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
 
-	read(clientfd, buffer, BUFSIZE);
+	read(pclient->client_socket, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
 
@@ -68,13 +66,16 @@ int handleclient(int *client_socket)
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
-				buffer = lsfun();
+				buffer = lsfun(pclient->pwd);
 			else if(strcmp(task->cmd, "cd") == 0 && task->arg != NULL)
-				buffer = cdfun(task->arg);
+				buffer = cdfun(task->arg, pclient->pwd);
 			else if(strcmp(task->cmd, "pwd") == 0)
-				buffer = pwdfun();
+				buffer = pclient->pwd;
 			else if(strcmp(task->cmd, "bye") == 0)
+			{
+				free(pclient);
 				return -1;
+			}
 			else
 				buffer = NULL;
 		}
@@ -95,7 +96,8 @@ int handleclient(int *client_socket)
 
 void *threadhandle(__attribute__((unused)) void *arg)
 {
-	int *pclient, ret = 0;
+	int ret = 0;
+	node_t *pclient;
 	do{
 		pclient = dequeue();
 
