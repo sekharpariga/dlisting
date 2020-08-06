@@ -1,5 +1,4 @@
-			
-								Directory Listing Server
+					Directory Listing Server
 
 
 This a simple directory listing server, that serves ls, cd, pwd of directory functions.
@@ -9,15 +8,14 @@ server keeps the each accepted client session details in the queue data structur
 cointains each clients socketfd and present working directory as a queue node.
 
 
-following are the server directory listing commands and corresponding mapped functions.
+Following are the server directory listing commands and corresponding mapped functions.
 
 commands			function name
 ls				lsfun
 cd				cdfun
 
 
-command implementation detials:
-
+Command implementation detials:
 ls:
 	when client sends ls command to the server, lsfun checks the pwd of client from queue node and list the 
 files under it.
@@ -28,18 +26,15 @@ cd:
 its tries to change client requested path. If server succeeds to new change client requested relative/obsolute path,
 it updates the queue->pwd path. If client asks for wrong path it, server replies to the client as wrong input.
 
-
 pwd:
 	When client first connects to the server, client session queue->pwd will have servers running directory path.
 so, when ever client request pwd command, server sends the queue->pwd buffer stored path.
-
 
 bye:
 	When client sends "bye", server closes the client connection by removing the client session queue node.
 
 
 Queue data structure details:
-
 	typedef struct node 
 	{
 	        int *client_socket;
@@ -51,15 +46,14 @@ Queue data structure details:
 	void enqueue(int *client_socket, char *pwd);
 	node_t *dequeue();
 
-enqueue fun:
+enqueue:
 	when client successfully connects to server, this function creates the above queue node into the queue.
 
-
-dequeue fun:
+dequeue:
 	when client sends "bye", server removes the clients queue node and closes the client connection.
 
 
 Multi-threading:
-	when server successfully starts, it will create thread pool of max defined macro THREADPOOL threads.
-server uses pthread mutex lock to syn operations on adjusting session queue's head and tail.
+	when server successfully starts, it will create thread pool of max THREADPOOL threads.
+server uses pthread mutex lock to syn operations on adjusting session queue data.
 
