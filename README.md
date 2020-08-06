@@ -1,5 +1,5 @@
-#Directory Listing Server
-####This a simple directory searching server and client.
+# Directory Listing Server
+#### This a simple directory searching server and client.
 
 client availabe commands
 ```
@@ -10,8 +10,8 @@ bye
 ```
 
 
-##Error Codes Descriptions:
-code 		Description
+## Error Codes Descriptions:
+### code 		Description
 1		Socket creation faild
 2		Port binding failed
 3		Listening failed
