@@ -1,5 +1,5 @@
 # Directory Listing Server
-#### This a simple directory searching server and client.
+#### This a simple directory listing server and client.
 
 client availabe commands
 ```
