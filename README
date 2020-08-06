@@ -1,7 +1,7 @@
 					Directory Listing Server
 
 
-This a simple directory listing server, that serves ls, cd, pwd of directory functions.
+This is a simple directory listing server, that serves ls, cd, pwd of directory functions.
 
 	Server is implemented using multi-thread pthread library, to serve multiple clients simulteniously.
 server keeps the each accepted client session details in the queue data structure. Client session queue 
