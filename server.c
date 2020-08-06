@@ -60,7 +60,6 @@ char *pwdfun(node_t *pclient)
 
 int handleclient(node_t *pclient)
 {
-	printf("serving clientfd:%d\n", *(pclient->client_socket));
 	char *buffer, *buffertemp;
 	struct parsedata *task;
 	int msgsize = 0, clientfd = *(pclient->client_socket);
@@ -71,7 +70,7 @@ int handleclient(node_t *pclient)
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
 
-	if(msgsize > 0) 
+	if(msgsize > 1) 
 	{
 		buffer[msgsize] = 0;
 		task = clientrequest(buffer, msgsize + 1);
@@ -80,7 +79,7 @@ int handleclient(node_t *pclient)
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
-				buffer = lsfun(pclient->pwd);
+				buffer = lsfun(pclient);
 			else if(strcmp(task->cmd, "cd") == 0 && task->arg != NULL)
 				buffer = cdfun(task->arg, pclient);
 			else if(strcmp(task->cmd, "pwd") == 0)
@@ -108,16 +107,18 @@ int handleclient(node_t *pclient)
 
 void *threadhandle(__attribute__((unused)) void *arg)
 {
-	int ret = 0;
+	int ret = 0, connfd = 0;
 	node_t *pclient;
 	do{
 		pclient = dequeue();
-
 		if(pclient != NULL)
-		{
+		{	
+			connfd = *(pclient->client_socket);
+			printf("new conn:%d\n", connfd);
 			do{
 				ret = handleclient(pclient);
 			}while(ret > 0);
+			printf("closed conn:%d\n", connfd);
 		}
 		else
 			usleep(10);
