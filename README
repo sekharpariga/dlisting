@@ -63,7 +63,3 @@ Multi-threading:
 	when server successfully starts, it will create thread pool of max defined macro THREADPOOL threads.
 server uses pthread mutex lock to syn operations on adjusting session queue's head and tail.
 
-
-
-
-
