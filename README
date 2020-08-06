@@ -12,8 +12,8 @@ cointains each clients socketfd and present working directory as a queue node.
 flowing are the server directory listing commands and their mapped implemented functions.
 
 commands			function name
-ls						lsfun
-cd						cdfun
+ls				lsfun
+cd				cdfun
 
 
 command implementation detials:
