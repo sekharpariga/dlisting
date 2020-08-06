@@ -9,7 +9,7 @@ server keeps the each accepted client session details in the queue data structur
 cointains each clients socketfd and present working directory as a queue node.
 
 
-following are the server directory listing commands and their mapped implemented functions.
+following are the server directory listing commands and corresponding mapped functions.
 
 commands			function name
 ls				lsfun
