@@ -25,9 +25,9 @@
 #define BACKLOG 50
 #define SERVERIP "127.0.0.1"
 #define PORT 54321
-#define THREADPOOL 2
+#define THREADPOOL 1
 #define true 1
-#define strlcpy strncpy
+#define strlcpy strncpy			//not fund strlcpy in glibc
 #define st_time st_ctime.tv_sec
 
 struct parsedata
@@ -46,7 +46,7 @@ int handleclient(node_t *pclient);
 
 void *threadhandle(__attribute__((unused)) void *arg);
 
-char *lsfun(node_t *pclient);
+void lsfun(node_t *pclient);
 
 struct parsedata * clientrequest(char * data, int msgsize);
 

@@ -5,18 +5,12 @@ extern pthread_mutex_t lock;
 void signal_handler(int signum)
 {
 	if(signum == SIGINT)
-	{
 		printf("\nreceived SIGINT\nServer Exiting\n");
-		usleep(1000);
-		exit(0);
-	}
 
 	if(signum == SIGTSTP)
-	{
 		printf("\nreceived SIGSTP\nServer Exiting\n");
-		usleep(1000);
-		exit(0);
-	}
+
+	exit(0);
 }
 
 char *cdfun(char *path, node_t *pclient)
@@ -51,23 +45,27 @@ char *pwdfun(node_t *pclient)
 	return NULL;
 }
 
-char *lsfun(node_t *pclient)
+void lsfun(node_t *pclient)
 {
 	DIR *directory;
-	int status, len, cpylen = 0, space = 0;
+	int status;
+	int recordlen;
+	int cpylen = 0;
+	int msglen = 0;
+	int clientfd = *(pclient->client_socket);
 	char *filectime;
+	char *buffer = (char *) malloc(BUFSIZE * sizeof(char));
+	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
 	struct dirent *dir;
 	struct stat type;
+
 	pthread_mutex_lock(&lock);
 	chdir(pclient->pwd);
 	directory = opendir(".");
 	pthread_mutex_unlock(&lock);
-	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
-	char *ret = (char *) malloc(BUFSIZE * sizeof(char));
-	int msglen = 0;
 
-	if(tmp == NULL || ret == NULL)
-		perror("malloc buffer allocation error\n");
+	if(tmp == NULL || buffer == NULL)
+		printf("malloc error for client conn:%d\n", clientfd);
 
 	if(directory)
 	{
@@ -80,38 +78,39 @@ char *lsfun(node_t *pclient)
 			if(status == 0)
 			{
 				filectime = ctime(&type.st_ctime);
-				len = sizeof("\t") * 3 + strlen(dir->d_name) + strlen(filectime) + 1;
-				len = dir->d_type == DT_REG ? len + 4: len + 3 ;
+				recordlen = sizeof("\t") * 3 + strlen(dir->d_name) + strlen(filectime) + 1;
+				recordlen = dir->d_type == DT_REG ? recordlen + 4: recordlen + 3 ;
 				
 				if(dir->d_type != DT_REG)
 					snprintf(tmp, BUFSIZE, "dir\t%s\t\t%s", dir->d_name, filectime);
 				else
 					snprintf(tmp, BUFSIZE, "file\t%s\t\t%s", dir->d_name, filectime);
 
-				tmp[len] = 0;
+				tmp[recordlen] = 0;
 				cpylen = strlen(tmp);
-				cpylen = (msglen + cpylen) < BUFSIZE ? cpylen : (BUFSIZE - msglen - 1);
 
-				if(cpylen > 0)
+				if((cpylen + msglen) < BUFSIZE)
 				{
-					strlcpy(ret + msglen, tmp, cpylen);
+					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
 				else
-					break;
+				{
+					send(clientfd, buffer, sizeof(buffer), 0);
+					if(cpylen > 0)
+					{
+						strlcpy(buffer, tmp, cpylen);
+						msglen = cpylen;
+					}
+				}
 			}
 			else
-				strcpy(ret, "error in lsfun");
+				send(clientfd, "error in lsfun",strlen("error in lsfun"), 0);
 		}
 	}
 
-	if(msglen < BUFSIZE)
-		ret[msglen] = 0;
-	else
-		ret[BUFSIZE] = 0;
-
 	free(tmp);
-	return ret;
+	free(buffer);
 }
 
 int handleclient(node_t *pclient)
@@ -135,7 +134,7 @@ int handleclient(node_t *pclient)
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
-				buffer = lsfun(pclient);
+				lsfun(pclient);
 			else if(strcmp(task->cmd, "cd") == 0 && task->arg != NULL)
 				buffer = cdfun(task->arg, pclient);
 			else if(strcmp(task->cmd, "pwd") == 0)
@@ -149,10 +148,8 @@ int handleclient(node_t *pclient)
 				buffer = NULL;
 		}
 
-		if(buffer != NULL && strlen(buffer) > 0)
+		if(buffer != NULL)
 			send(clientfd, buffer, strlen(buffer), 0);
-		else
-			send(clientfd, "Invalid command!", strlen("Invalid command!"), 0);
 	}
 	else
 		send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
