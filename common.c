@@ -181,7 +181,6 @@ char *lsfun(node_t *pclient)
 	return ret;
 }
 
-
 struct parsedata *clientrequest(char *data, int msgsize)
 {
 	int cmdstart = 0, argstart = 0, cmdlen = 0, arglen = 0, index = 0;

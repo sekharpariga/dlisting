@@ -1,4 +1,5 @@
 #include "queue.h"
+#include "common.h"
 
 node_t *head = NULL;
 node_t *tail = NULL;

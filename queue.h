@@ -1,8 +1,7 @@
 #ifndef __QUEUE__H
 #define __QUEUE__H
 
-#include "common.h"
-
+#define PATH_MAX 4096
 typedef struct node 
 {
 	int *client_socket;
