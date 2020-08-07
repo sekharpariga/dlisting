@@ -30,10 +30,10 @@ char *cdfun(char *path, node_t *pclient)
 				strlcpy(pclient->pwd, currentpath, PATH_MAX);
 		}
 		else
-			strdup("Wrong Dir");
+			printf("Wrong Dir Requested by client conn:%d\n", *(pclient->client_socket));
 	}
 	else
-		strdup("Wrong dir pclient->pwd");
+		printf("Wrong pclient->pwd, client conn:%d", *(pclient->client_socket));
 	pthread_mutex_unlock(&lock);
 	return strdup(" ");
 }
@@ -105,7 +105,11 @@ void lsfun(node_t *pclient)
 				}
 			}
 			else
+<<<<<<< HEAD
 				send(clientfd, "error in lsfun",strlen("error in lsfun"), 0);
+=======
+				strlcpy(ret, "error in lsfun");
+>>>>>>> 1cd83cbc4f3eb4967e2f2f37088eff6020f1a1dd
 		}
 	}
 
