@@ -22,7 +22,7 @@ int main()
 		buffer = buffer + sizeof(int);
 		msgsize = read(0, buffer, BUFSIZE - sizeof(int));
 
-		if(msgsize > 0)
+		if(msgsize > 1)
 		{
 			temp = buffer + (msgsize - 1);
 	

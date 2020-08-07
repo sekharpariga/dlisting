@@ -3,6 +3,7 @@
 int serverfd, clientfd;
 struct sockaddr_in address;
 int addrlen = sizeof(address), opt = 1;
+
 pthread_t thread_id[THREADPOOL];
 pthread_mutex_t lock;
 
@@ -12,15 +13,15 @@ void signal_handler(int signum)
 {
 	if(signum == SIGINT)
 	{
-		printf("received SIGINT exiting\n");
-		usleep(100);
+		printf("\nreceived SIGINT\nServer Exiting\n");
+		usleep(1000);
 		exit(0);
 	}
 
 	if(signum == SIGTSTP)
 	{
-		printf("received SIGSTP exiting\n");
-		usleep(100);
+		printf("\nreceived SIGSTP\nServer Exiting\n");
+		usleep(1000);
 		exit(0);
 	}
 }
@@ -54,7 +55,6 @@ char *pwdfun(node_t *pclient)
 {
 	if(getcwd(pclient->pwd, PATH_MAX) == NULL)
 		strdup("error in asigning path");
-
 	return NULL;
 }
 
@@ -69,7 +69,7 @@ int handleclient(node_t *pclient)
 	read(clientfd, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
 	buffer = buffer + sizeof(int);
-
+	
 	if(msgsize > 1) 
 	{
 		buffer[msgsize] = 0;
@@ -96,8 +96,7 @@ int handleclient(node_t *pclient)
 		if(buffer != NULL && strlen(buffer) > 0)
 			send(clientfd, buffer, strlen(buffer), 0);
 		else
-			send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
-
+			send(clientfd, "Invalid command!", strlen("Invalid command!"), 0);
 	}
 	else
 		send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
@@ -117,15 +116,13 @@ void *threadhandle(__attribute__((unused)) void *arg)
 			printf("new conn:%d\n", connfd);
 			do{
 				ret = handleclient(pclient);
-			}while(ret > 0);
+			}while(ret != -1);
 			printf("closed conn:%d\n", connfd);
 		}
 		else
 			usleep(10);
 
 	}while(true);
-
-	printf("thread closed\n");
 	return NULL;
 }
 
