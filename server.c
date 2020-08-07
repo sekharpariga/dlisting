@@ -1,14 +1,13 @@
 #include "common.h"
 
-int serverfd, clientfd;
-struct sockaddr_in address;
-int addrlen = sizeof(address), opt = 1;
-
-pthread_t thread_id[THREADPOOL];
 pthread_mutex_t lock;
 
 int main()
 {
+	pthread_t thread_id[THREADPOOL];
+	int serverfd, clientfd;
+	struct sockaddr_in address;
+	int addrlen = sizeof(address), opt = 1;
 
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -27,22 +26,22 @@ int main()
 	if(pthread_mutex_init(&lock, NULL) != 0)
 	{
 		perror("mutex lock init failed!\n");
-		exit(-1);
+		exit(1);
 	}
 
 	serverfd = socket(AF_INET,SOCK_STREAM, 0);
 
 	if(serverfd == 0)
-		exit(1);
+		exit(2);
 	
 	if(setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT | TCP_NODELAY, &opt, sizeof(opt)))
-	       exit(6);
+	       exit(3);
 
 	if(bind(serverfd,(struct sockaddr *) &address, addrlen) != 0)
-		exit(2);
+		exit(4);
 
 	if(listen(serverfd, BACKLOG) != 0)
-		exit(3);
+		exit(5);
 
 	for(int i = 0; i < THREADPOOL; i++)
 		pthread_create(&(thread_id[i]), NULL, &threadhandle, NULL);
