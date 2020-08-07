@@ -57,3 +57,74 @@ Multi-threading:
 	when server successfully starts, it will create thread pool of max THREADPOOL threads.
 server uses pthread mutex lock to syn operations on adjusting session queue data.
 
+
+Instructions to build:
+tools required : gcc and make
+
+root@kali:~/dlisting# make all
+gcc -c lsfun.c -o lsfun.o
+gcc -c request.c -o request.o
+gcc -c queue.c -o queue.o
+gcc -g -Wall -Wextra -pedantic  server.c lsfun.o request.o queue.o -o server.o -lpthread
+gcc -g -Wall -Wextra -pedantic   client.c -o client.o
+
+
+commands output:
+
+root@kali:~/dlisting# ./server.o 
+new conn:4
+closed conn:4
+
+
+root@kali:~/dlisting# ./client.o 
+pwd
+/root/dlisting
+
+ls
+file	queue.o		Fri Aug  7 11:38:56 2020
+file	request.c		Thu Aug  6 15:39:48 2020
+file	server.o		Fri Aug  7 11:38:56 2020
+file	singleserver.c		Thu Aug  6 15:39:48 2020
+file	makefile		Thu Aug  6 15:39:48 2020
+file	lsfun.c		Thu Aug  6 16:05:34 2020
+file	queue.h		Thu Aug  6 15:39:48 2020
+file	request.o		Fri Aug  7 11:38:56 2020
+file	lsfun.o		Fri Aug  7 11:38:56 2020
+file	server.c		Thu Aug  6 16:59:06 2020
+file	TODO		Thu Aug  6 15:39:48 2020
+file	client.c		Thu Aug  6 16:48:23 2020
+file	queue.c		Thu Aug  6 15:39:48 2020
+file	request.h		Thu Aug  6 15:39:48 2020
+file	test.c		Thu Aug  6 15:39:48 2020
+file	common.h		Thu Aug  6 15:39:48 2020
+file	README		Thu Aug  6 15:44:12 2020
+file	.gitignore		Thu Aug  6 15:39:48 2020
+file	lsfun.h		Thu Aug  6 15:39:48 2020
+file	client.o		Fri Aug  7 11:38:56 2020
+file	README.md		Thu Aug  6 15:39:48 2020
+dir 	.git		Fri Aug  7 11:36:45 2020
+
+
+cd ..
+ 
+pwd
+/root
+
+bye
+root@kali:~/dlisting#
+
+Limitations:
+1. ls buffer size is of 4096 chars
+2. pwd path max buffer size is 4096 chars
+
+Assumptions:
+1. due to not having file birth_date<created date> used the 
+
+Linux distribution used : 
+Distributor ID:	Kali
+Description:	Kali GNU/Linux Rolling
+Release:		2020.3
+
+gcc version 9.3.0 (Debian 9.3.0-15) 
+
+
