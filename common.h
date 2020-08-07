@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <signal.h>
-#include "lsfun.h"
 #include "request.h"
 #include "queue.h"
 
@@ -30,5 +29,21 @@
 #define THREADPOOL 2
 #define true 1
 #define strlcpy strncpy
+#define st_time st_ctime.tv_sec
+
+struct parsedata
+{
+	char *cmd;
+	char *arg;
+};
+
+void signal_handler(int signum);
+char *cdfun(char *path, node_t *pclient);
+char *pwdfun(node_t *pclient);
+int handleclient(node_t *pclient);
+void *threadhandle(__attribute__((unused)) void *arg);
+char *lsfun(node_t *pclient);
+
+struct parsedata * clientrequest(char * data, int msgsize);
 
 #endif

@@ -1,24 +1,19 @@
 CC=gcc
 CFLAGS=-g -Wall -Wextra -pedantic 
 
-all : lsfun.o server.o client.o request.o queue.o
+all: server.o client.o common.o queue.o
 
-server.o: server.c lsfun.o request.o queue.o
-	$(CC) $(CFLAGS) server.c lsfun.o request.o queue.o -o server.o -lpthread
+server.o: server.c common.o queue.o
+	$(CC) $(CFLAGS) server.c common.o queue.o -o server.o -lpthread
 
 client.o: client.c
 	$(CC) $(CFLAGS)  client.c -o client.o
 
-lsfun.o: lsfun.c
-	$(CC) -c lsfun.c -o lsfun.o
+common.o: common.c common.h
+	$(CC) -c common.c -o common.o
 
-request.o: request.c
-	$(CC) -c request.c -o request.o
-
-queue.o: queue.c
+queue.o: queue.c queue.h
 	$(CC) -c queue.c -o queue.o
 
-test: test.c lsfun.o
-	$(CC) $(CFLAGS) test.c lsfun.o -o test.o
 clean:
-	rm -f server.o client.o lsfun.o a.out lsfun.a test.o queue.o request.o
+	rm -f *.o  *.o a.out
