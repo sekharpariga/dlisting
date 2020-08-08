@@ -80,30 +80,34 @@ char *lsfun(node_t *pclient)
 
 				if((cpylen + msglen) < BUFSIZE)
 				{
+					printf("1:cpylen:%d, msglen:%d\n", cpylen, msglen);
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
-				else if((cpylen + msglen) > (BUFSIZE - 1))
+				else if((cpylen + msglen) >= BUFSIZE)
 				{
+					printf("2:cpylen:%d, msglen:%d, sum :%d\n", cpylen, msglen, (msglen+cpylen));
 					printf("buffer:%s\n", buffer);
 					send(clientfd, buffer, strlen(buffer), 0);
-					if(cpylen > 0)
-					{
-						strlcpy(buffer, tmp, cpylen);
-						msglen = cpylen;
-					}
+					strlcpy(buffer, tmp, cpylen);
+					msglen = cpylen;
 				}
+				else
+					printf("%s\n", buffer);
 			}
 			else
 				send(clientfd, "error in lsfun",strlen("error in lsfun"), 0);
+			cpylen = 0;
 		}
-
 	}
+	
+	printf("3: cpylen:%d, msglen:%d\n", cpylen, msglen);
 	if(msglen != 0)
 		send(clientfd, buffer, strlen(buffer), 0);
 
 	free(tmp);
 	free(buffer);
+	closedir(directory);
 	return NULL;
 }
 
