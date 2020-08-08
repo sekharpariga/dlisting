@@ -105,11 +105,7 @@ void lsfun(node_t *pclient)
 				}
 			}
 			else
-<<<<<<< HEAD
 				send(clientfd, "error in lsfun",strlen("error in lsfun"), 0);
-=======
-				strlcpy(ret, "error in lsfun");
->>>>>>> 1cd83cbc4f3eb4967e2f2f37088eff6020f1a1dd
 		}
 	}
 
