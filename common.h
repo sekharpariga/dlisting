@@ -46,7 +46,7 @@ int handleclient(node_t *pclient);
 
 void *threadhandle(__attribute__((unused)) void *arg);
 
-void lsfun(node_t *pclient);
+char *lsfun(node_t *pclient);
 
 struct parsedata * clientrequest(char * data, int msgsize);
 

@@ -2,17 +2,6 @@
 
 extern pthread_mutex_t lock;
 
-void signal_handler(int signum)
-{
-	if(signum == SIGINT)
-		printf("\nreceived SIGINT\nServer Exiting\n");
-
-	if(signum == SIGTSTP)
-		printf("\nreceived SIGSTP\nServer Exiting\n");
-
-	exit(0);
-}
-
 char *cdfun(char *path, node_t *pclient)
 {
 	char *cflag = NULL;
@@ -45,7 +34,7 @@ char *pwdfun(node_t *pclient)
 	return NULL;
 }
 
-void lsfun(node_t *pclient)
+char *lsfun(node_t *pclient)
 {
 	DIR *directory;
 	int status;
@@ -94,9 +83,10 @@ void lsfun(node_t *pclient)
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
-				else
+				else if((cpylen + msglen) > (BUFSIZE - 1))
 				{
-					send(clientfd, buffer, sizeof(buffer), 0);
+					printf("buffer:%s\n", buffer);
+					send(clientfd, buffer, strlen(buffer), 0);
 					if(cpylen > 0)
 					{
 						strlcpy(buffer, tmp, cpylen);
@@ -107,10 +97,14 @@ void lsfun(node_t *pclient)
 			else
 				send(clientfd, "error in lsfun",strlen("error in lsfun"), 0);
 		}
+
 	}
+	if(msglen != 0)
+		send(clientfd, buffer, strlen(buffer), 0);
 
 	free(tmp);
 	free(buffer);
+	return NULL;
 }
 
 int handleclient(node_t *pclient)
@@ -134,7 +128,7 @@ int handleclient(node_t *pclient)
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
-				lsfun(pclient);
+				buffer = lsfun(pclient);
 			else if(strcmp(task->cmd, "cd") == 0 && task->arg != NULL)
 				buffer = cdfun(task->arg, pclient);
 			else if(strcmp(task->cmd, "pwd") == 0)
@@ -147,7 +141,6 @@ int handleclient(node_t *pclient)
 			else
 				buffer = NULL;
 		}
-
 		if(buffer != NULL)
 			send(clientfd, buffer, strlen(buffer), 0);
 	}
@@ -173,7 +166,7 @@ void *threadhandle(__attribute__((unused)) void *arg)
 			printf("closed conn:%d\n", connfd);
 		}
 		else
-			usleep(10);
+			usleep(100);
 
 	}while(true);
 	return NULL;
@@ -228,3 +221,15 @@ struct parsedata *clientrequest(char *data, int msgsize)
 
 	return pdata;
 }
+
+void signal_handler(int signum)
+{
+	if(signum == SIGINT)
+		printf("\nreceived SIGINT\nServer Exiting\n");
+
+	if(signum == SIGTSTP)
+		printf("\nreceived SIGSTP\nServer Exiting\n");
+
+	exit(0);
+}
+
