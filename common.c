@@ -34,7 +34,7 @@ char *pwdfun(node_t *pclient)
 	return NULL;
 }
 
-char *lsfun(node_t *pclient)
+void lsfun(node_t *pclient)
 {
 	DIR *directory;
 	int status;
@@ -80,14 +80,12 @@ char *lsfun(node_t *pclient)
 
 				if((cpylen + msglen) < BUFSIZE)
 				{
-					printf("1:cpylen:%d, msglen:%d\n", cpylen, msglen);
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
 				else if((cpylen + msglen) >= BUFSIZE)
 				{
 					printf("2:cpylen:%d, msglen:%d, sum :%d\n", cpylen, msglen, (msglen+cpylen));
-					printf("buffer:%s\n", buffer);
 					send(clientfd, buffer, strlen(buffer), 0);
 					strlcpy(buffer, tmp, cpylen);
 					msglen = cpylen;
@@ -101,14 +99,12 @@ char *lsfun(node_t *pclient)
 		}
 	}
 	
-	printf("3: cpylen:%d, msglen:%d\n", cpylen, msglen);
 	if(msglen != 0)
 		send(clientfd, buffer, strlen(buffer), 0);
 
 	free(tmp);
 	free(buffer);
 	closedir(directory);
-	return NULL;
 }
 
 int handleclient(node_t *pclient)
@@ -132,11 +128,11 @@ int handleclient(node_t *pclient)
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
-				buffer = lsfun(pclient);
+				lsfun(pclient);
 			else if(strcmp(task->cmd, "cd") == 0 && task->arg != NULL)
-				buffer = cdfun(task->arg, pclient);
+				cdfun(task->arg, pclient);
 			else if(strcmp(task->cmd, "pwd") == 0)
-				buffer = pclient->pwd;
+				send(clientfd, pclient->pwd, strlen(pclient->pwd), 0);
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
 				free(pclient);
@@ -145,8 +141,6 @@ int handleclient(node_t *pclient)
 			else
 				buffer = NULL;
 		}
-		if(buffer != NULL)
-			send(clientfd, buffer, strlen(buffer), 0);
 	}
 	else
 		send(clientfd, "Wrong Request", strlen("Wrong Request"), 0);
