@@ -38,15 +38,15 @@ struct parsedata
 
 void signal_handler(int signum);
 
-char *cdfun(char *path, node_t *pclient);
+void cdfun(char *path, node_t *pclient);
 
-char *pwdfun(node_t *pclient);
+char  *pwdfun(node_t *pclient);
 
 int handleclient(node_t *pclient);
 
 void *threadhandle(__attribute__((unused)) void *arg);
 
-char *lsfun(node_t *pclient);
+void lsfun(node_t *pclient);
 
 struct parsedata * clientrequest(char * data, int msgsize);
 

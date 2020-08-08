@@ -43,14 +43,16 @@ int main()
 				exit(0);
 				free(buffer);
 			}
-			msgsize = read(socketfd, buffer, BUFSIZE);
+			
+			do{
+				msgsize = read(socketfd, buffer, BUFSIZE);
+				if(msgsize < BUFSIZE)
+					buffer[msgsize] = 0;
+				else
+					buffer[BUFSIZE] = 0;
 
-			if(msgsize < BUFSIZE)
-				buffer[msgsize] = 0;
-			else
-				buffer[BUFSIZE] = 0;
-
-			printf("%s\n", buffer);
+				printf("%s", buffer + 1);
+			}while(*buffer != '0');
 		}
 		memset(buffer, 0, BUFSIZE);
 	}
