@@ -60,6 +60,7 @@ int main()
 			{
 				*pclient = clientfd;
 				enqueue(pclient, mainpwd);
+				display();
 			}
 		}
 	}

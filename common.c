@@ -17,6 +17,11 @@ void cdfun(char *path, node_t *pclient)
 			cflag = pwdfun(pclient);
 			if(cflag != NULL)
 				strlcpy(pclient->pwd, currentpath, PATH_MAX);
+			else
+			{
+				free(cflag);
+				printf("error in path setting for %d", *(pclient->client_socket));
+			}
 		}
 		else
 			printf("Wrong Dir Requested by client conn:%d\n", *(pclient->client_socket));
@@ -30,7 +35,10 @@ void cdfun(char *path, node_t *pclient)
 char *pwdfun(node_t *pclient)
 {
 	if(getcwd(pclient->pwd, PATH_MAX) == NULL)
+	{
 		printf("error in asigning path");
+		return strdup("error");
+	}
 	return NULL;
 }
 
@@ -38,7 +46,6 @@ void lsfun(node_t *pclient)
 {
 	DIR *directory;
 	int status;
-	int recordlen;
 	int cpylen = 0;
 	int msglen = 1;
 	int clientfd = *(pclient->client_socket);
@@ -69,26 +76,27 @@ void lsfun(node_t *pclient)
 			if(status == 0)
 			{
 				filectime = ctime(&type.st_ctime);
-				recordlen = sizeof("\t") * 3 + strlen(dir->d_name) + strlen(filectime) + 1;
-				recordlen = dir->d_type == DT_REG ? recordlen + 4: recordlen + 3 ;
-				
+				cpylen = strlen("\t") * 3 + strlen(dir->d_name) + strlen(filectime) ;
+				cpylen = dir->d_type == DT_REG ? cpylen + 4: cpylen + 3 ;
+
 				if(dir->d_type != DT_REG)
 					snprintf(tmp, BUFSIZE, "dir\t%s\t\t%s", dir->d_name, filectime);
 				else
 					snprintf(tmp, BUFSIZE, "file\t%s\t\t%s", dir->d_name, filectime);
 
-				tmp[recordlen] = 0;
-				cpylen = strlen(tmp);
+				tmp[cpylen] = 0;
 
 				if((cpylen + msglen) < BUFSIZE)
 				{
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
-				else if((cpylen + msglen) >= BUFSIZE)
+				else if((cpylen + msglen) > BUFSIZE)
 				{
 					send(clientfd, buffer, strlen(buffer), 0);
-					strlcpy(buffer, tmp, cpylen);
+					memset(buffer, 0, BUFSIZE);
+					*(buffer) = '1';
+					strlcpy(buffer + 1, tmp, cpylen);
 					msglen = cpylen + 1;
 				}
 				else
@@ -96,11 +104,10 @@ void lsfun(node_t *pclient)
 			}
 			else
 			{
-				snprintf(buffer, BUFSIZE, "0%s%s", "error in lsfun for ", dir->d_name);
+				snprintf(buffer, BUFSIZE, "0%s%s", "file stat error for :", dir->d_name);
 				send(clientfd, buffer, BUFSIZE, 0);
 				break;
 			}
-			cpylen = 0;
 		}
 
 		if(msglen != 0)
@@ -138,6 +145,7 @@ int handleclient(node_t *pclient)
 		buffer[msgsize] = 0;
 		task = clientrequest(buffer, msgsize + 1);
 		buffer = buffertemp;
+
 		if(task->cmd != NULL)
 		{
 			if(strcmp(task->cmd, "ls") == 0)
@@ -149,24 +157,25 @@ int handleclient(node_t *pclient)
 				int len = strlen(pclient->pwd);
 				char *sendbuffer = malloc(len * sizeof(char));
 				strlcpy(sendbuffer, pclient->pwd, len);
+
 				snprintf(buffer, BUFSIZE, "0%s\n", sendbuffer);
 				send(clientfd, buffer, BUFSIZE, 0);
 			}
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
-				free(pclient);
 				free(buffer);
-				return -1;
+				free(pclient);
+				return 0;
 			}
 			else
-				buffer = NULL;
+				send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
 		}
 	}
 	else
 		send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
 	if(buffer != NULL)
 		free(buffer);
-	return msgsize;
+	return 1;
 }
 
 void *threadhandle(__attribute__((unused)) void *arg)
@@ -181,7 +190,7 @@ void *threadhandle(__attribute__((unused)) void *arg)
 			printf("new conn:%d\n", connfd);
 			do{
 				ret = handleclient(pclient);
-			}while(ret != -1);
+			}while(ret != 0);
 			printf("closed conn:%d\n", connfd);
 		}
 		else
@@ -251,4 +260,3 @@ void signal_handler(int signum)
 
 	exit(0);
 }
-
