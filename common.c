@@ -63,7 +63,7 @@ void lsfun(node_t *pclient)
 	if(tmp == NULL || buffer == NULL)
 		printf("malloc error for client conn:%d\n", clientfd);
 
-	*(buffer) = '1';
+	buffer[0] = '1';
 
 	if(directory)
 	{
@@ -95,29 +95,35 @@ void lsfun(node_t *pclient)
 				{
 					send(clientfd, buffer, strlen(buffer), 0);
 					memset(buffer, 0, BUFSIZE);
-					*(buffer) = '1';
+					buffer[0] = '1';
 					strlcpy(buffer + 1, tmp, cpylen);
 					msglen = cpylen + 1;
+					cpylen = 0;
 				}
 				else
+				{
 					printf("%s\n", buffer);
+					msglen = 0;
+					cpylen = 0;
+				}
 			}
 			else
 			{
-				snprintf(buffer, BUFSIZE, "0%s%s", "file stat error for :", dir->d_name);
+				snprintf(buffer, BUFSIZE, "0%s%s\n", "file stat error for :", dir->d_name);
 				send(clientfd, buffer, BUFSIZE, 0);
+				msglen = 0;
 				break;
 			}
 		}
 
 		if(msglen != 0)
 		{
-			*(buffer) = '0';
-			int len = strlen(buffer);
-			if(len < BUFSIZE - 1)
+			buffer[0] = '0';
+			cpylen = strlen(buffer);
+			if(cpylen < BUFSIZE)
 			{
-				buffer[len] = '\n';
-				buffer[len + 1] = 0;
+				buffer[cpylen] = '\n';
+				buffer[cpylen + 1] = 0;
 			}
 			send(clientfd, buffer, strlen(buffer), 0);
 		}

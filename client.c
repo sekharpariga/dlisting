@@ -74,15 +74,20 @@ int main()
 				free(buffer);
 				exit(0);
 			}
-			do{
+			memset(buffer, 0, BUFSIZE);
+
+			do
+			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
+				printf("zero:%c\n", buffer[0]);
 				if(msgsize < BUFSIZE)
 					buffer[msgsize] = 0;
 				else
 					buffer[BUFSIZE] = 0;
 
 				printf("%s", buffer + 1);
-			}while(*buffer != '0');
+				memset(buffer + 1, 0, BUFSIZE - 1);
+			}while(buffer[0] != '0');
 		}
 		memset(buffer, 0, BUFSIZE);
 	}
