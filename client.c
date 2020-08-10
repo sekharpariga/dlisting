@@ -79,7 +79,7 @@ int main()
 			do
 			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
-				printf("zero:%c\n", buffer[0]);
+				printf("\nzero:%c\n", buffer[0]);
 				if(msgsize < BUFSIZE)
 					buffer[msgsize] = 0;
 				else
