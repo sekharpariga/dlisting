@@ -27,7 +27,7 @@ void signal_handler_client(int num)
 int main()
 {
 	int msgsize;
-	char *buffertemp, *temp;
+	char *buffertemp, *temp, dataflag;
 	struct sockaddr_in seraddr;
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	
@@ -79,15 +79,14 @@ int main()
 			do
 			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
-				printf("\nzero:%c\n", buffer[0]);
-				if(msgsize < BUFSIZE)
-					buffer[msgsize] = 0;
-				else
-					buffer[BUFSIZE] = 0;
-
+				dataflag = buffer[0];
+				printf("\ndataflag:%c\n", dataflag);
+				if(strlen(buffer) > 0 && strlen(buffer) < BUFSIZE)
+				buffer[strlen(buffer)] = 0;
+				
 				printf("%s", buffer + 1);
-				memset(buffer + 1, 0, BUFSIZE - 1);
-			}while(buffer[0] != '0');
+				memset(buffer, 0, BUFSIZE);
+			}while(dataflag != '0');
 		}
 		memset(buffer, 0, BUFSIZE);
 	}

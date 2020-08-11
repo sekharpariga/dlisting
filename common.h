@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -20,8 +21,8 @@
 #include <signal.h>
 #include "queue.h"
 
-#define BUFSIZE 4096
-#define PATH_MAX 4096
+#define BUFSIZE 1400
+#define PATHMAX 1400
 #define BACKLOG 50
 #define SERVERIP "127.0.0.1"
 #define PORT 54321

@@ -1,11 +1,11 @@
 #ifndef __QUEUE__H
 #define __QUEUE__H
 
-#define PATH_MAX 4096
+#define PATHMAX 1400
 typedef struct node 
 {
 	int *client_socket;
-	char pwd[PATH_MAX];
+	char pwd[PATHMAX];
 	struct node *next;
 } node_t;
 

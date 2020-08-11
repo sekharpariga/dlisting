@@ -9,12 +9,13 @@ extern pthread_mutex_t lock;
 void enqueue(int *client_socket, char *path)
 {
 	node_t *newnode = malloc(sizeof(node_t));
+	memset(newnode->pwd, 0, PATHMAX);
 
 	if(newnode != NULL)
 	{
 		newnode->client_socket = client_socket;
 		newnode->next = NULL;
-		strlcpy(newnode->pwd, path, PATH_MAX);
+		strlcpy(newnode->pwd, path, PATHMAX);
 
 		pthread_mutex_lock(&lock);
 		if(tail == NULL)

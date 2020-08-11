@@ -5,7 +5,6 @@ extern pthread_mutex_t lock;
 void cdfun(char *path, node_t *pclient)
 {
 	char *cflag = NULL;
-	char *currentpath = strdup(pclient->pwd);
 	pthread_mutex_lock(&lock);
 	int flag = chdir(pclient->pwd);
 
@@ -16,29 +15,31 @@ void cdfun(char *path, node_t *pclient)
 		{
 			cflag = pwdfun(pclient);
 			if(cflag != NULL)
-				strlcpy(pclient->pwd, currentpath, PATH_MAX);
-			else
-			{
 				free(cflag);
-				printf("error in path setting for %d", *(pclient->client_socket));
-			}
 		}
 		else
-			printf("Wrong Dir Requested by client conn:%d\n", *(pclient->client_socket));
+			printf("Dir not exist, client conn:%d\n", *(pclient->client_socket));
 	}
 	else
-		printf("Wrong pclient->pwd, client conn:%d", *(pclient->client_socket));
+		printf("pwd buffer is wrong:%d\n", *(pclient->client_socket));
+
 	pthread_mutex_unlock(&lock);
 	send(*(pclient->client_socket), "0\n", strlen("0\n"), 0);
 }
 
 char *pwdfun(node_t *pclient)
 {
-	if(getcwd(pclient->pwd, PATH_MAX) == NULL)
+	char *old_path = malloc(PATHMAX * sizeof(char));
+	snprintf(old_path, PATHMAX, "%s", pclient->pwd);
+	
+	if(getcwd(pclient->pwd, PATHMAX) == NULL)		//on failure of setting path, restores prev path
 	{
-		printf("error in asigning path");
-		return strdup("error");
+		memset(pclient->pwd, 0, PATHMAX);
+		snprintf(pclient->pwd, PATHMAX, "%s", old_path);
+		free(old_path);
+		return strdup("E");
 	}
+	free(old_path);
 	return NULL;
 }
 
@@ -76,13 +77,13 @@ void lsfun(node_t *pclient)
 			if(status == 0)
 			{
 				filectime = ctime(&type.st_ctime);
-				cpylen = strlen("\t") * 3 + strlen(dir->d_name) + strlen(filectime) ;
+				cpylen = strlen("\t") * 2 + strlen(dir->d_name) + strlen(filectime) ;
 				cpylen = dir->d_type == DT_REG ? cpylen + 4: cpylen + 3 ;
 
 				if(dir->d_type != DT_REG)
-					snprintf(tmp, BUFSIZE, "dir\t%s\t\t%s", dir->d_name, filectime);
+					snprintf(tmp, BUFSIZE, "dir\t%s\t%s", dir->d_name, filectime);
 				else
-					snprintf(tmp, BUFSIZE, "file\t%s\t\t%s", dir->d_name, filectime);
+					snprintf(tmp, BUFSIZE, "file\t%s\t%s", dir->d_name, filectime);
 
 				tmp[cpylen] = 0;
 
@@ -91,7 +92,7 @@ void lsfun(node_t *pclient)
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
-				else if((cpylen + msglen) > BUFSIZE)
+				else
 				{
 					send(clientfd, buffer, strlen(buffer), 0);
 					memset(buffer, 0, BUFSIZE);
@@ -100,35 +101,25 @@ void lsfun(node_t *pclient)
 					msglen = cpylen + 1;
 					cpylen = 0;
 				}
-				else
-				{
-					printf("%s\n", buffer);
-					msglen = 0;
-					cpylen = 0;
-				}
 			}
 			else
 			{
-				snprintf(buffer, BUFSIZE, "0%s%s\n", "file stat error for :", dir->d_name);
-				send(clientfd, buffer, BUFSIZE, 0);
-				msglen = 0;
-				break;
+				cpylen = snprintf(buffer + msglen, BUFSIZE, "%s%s\n", "file stat error:", dir->d_name);
+				msglen += cpylen;
 			}
+			memset(tmp, 0, BUFSIZE);
 		}
 
 		if(msglen != 0)
 		{
 			buffer[0] = '0';
-			cpylen = strlen(buffer);
-			if(cpylen < BUFSIZE)
-			{
-				buffer[cpylen] = '\n';
-				buffer[cpylen + 1] = 0;
-			}
 			send(clientfd, buffer, strlen(buffer), 0);
 		}
 	}
-	
+	else
+		send(clientfd, "0\n", strlen("0\n"), 0);
+
+	memset(buffer, 0, BUFSIZE);	
 	free(tmp);
 	free(buffer);
 	closedir(directory);
@@ -163,6 +154,7 @@ int handleclient(node_t *pclient)
 				int len = strlen(pclient->pwd);
 				char *sendbuffer = malloc(len * sizeof(char));
 				strlcpy(sendbuffer, pclient->pwd, len);
+				printf("len:%d\tbuffer:%s\n", len, sendbuffer);
 
 				snprintf(buffer, BUFSIZE, "0%s\n", sendbuffer);
 				send(clientfd, buffer, BUFSIZE, 0);
@@ -170,8 +162,9 @@ int handleclient(node_t *pclient)
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
 				free(buffer);
+				buffer = NULL;
 				free(pclient);
-				return 0;
+				return 1;
 			}
 			else
 				send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
@@ -179,30 +172,38 @@ int handleclient(node_t *pclient)
 	}
 	else
 		send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
+
 	if(buffer != NULL)
 		free(buffer);
-	return 1;
+
+	return 0;
 }
 
 void *threadhandle(__attribute__((unused)) void *arg)
 {
 	int ret = 0, connfd = 0;
 	node_t *pclient;
-	do{
+
+	do
+	{
 		pclient = dequeue();
 		if(pclient != NULL)
 		{	
 			connfd = *(pclient->client_socket);
 			printf("new conn:%d\n", connfd);
-			do{
+
+			do
+			{
 				ret = handleclient(pclient);
-			}while(ret != 0);
+			}while(ret == 0);
+
 			printf("closed conn:%d\n", connfd);
 		}
 		else
 			usleep(100);
 
 	}while(true);
+
 	return NULL;
 }
 

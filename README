@@ -38,7 +38,7 @@ Queue data structure details:
 	typedef struct node 
 	{
 	        int *client_socket;
-	        char pwd[PATH_MAX];
+	        char pwd[PATHMAX];
 	        struct node *next;
 	} node_t;
 
