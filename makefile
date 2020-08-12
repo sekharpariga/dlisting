@@ -16,4 +16,4 @@ queue.o: queue.c queue.h
 	$(CC) $(CFLAGS) -c queue.c -o queue.o
 
 clean:
-	rm -f *.o  *.a a.out
+	rm -f *.o *.a a.out

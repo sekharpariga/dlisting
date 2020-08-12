@@ -48,10 +48,10 @@ void lsfun(node_t *pclient)
 	DIR *directory;
 	int status;
 	int cpylen = 0;
-	int msglen = 1;
+	int msglen = 0;
 	int clientfd = *(pclient->client_socket);
 	char *filectime;
-	char *buffer = (char *) malloc(BUFSIZE * sizeof(char));
+	char *buffer = (char *) malloc((BUFSIZE + 5) * sizeof(char));
 	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
 	struct dirent *dir;
 	struct stat type;
@@ -63,8 +63,6 @@ void lsfun(node_t *pclient)
 
 	if(tmp == NULL || buffer == NULL)
 		printf("malloc error for client conn:%d\n", clientfd);
-
-	buffer[0] = '1';
 
 	if(directory)
 	{
@@ -94,11 +92,11 @@ void lsfun(node_t *pclient)
 				}
 				else
 				{
+					snprintf(buffer, BUFSIZE + 5, "%s00000", buffer);
 					send(clientfd, buffer, strlen(buffer), 0);
-					memset(buffer, 0, BUFSIZE);
-					buffer[0] = '1';
-					strlcpy(buffer + 1, tmp, cpylen);
-					msglen = cpylen + 1;
+					memset(buffer, 0, BUFSIZE + 5);
+					strlcpy(buffer, tmp, cpylen);
+					msglen = cpylen;
 					cpylen = 0;
 				}
 			}
@@ -112,14 +110,13 @@ void lsfun(node_t *pclient)
 
 		if(msglen != 0)
 		{
-			buffer[0] = '0';
+			snprintf(buffer, BUFSIZE + 5, "%s00000", buffer);
 			send(clientfd, buffer, strlen(buffer), 0);
 		}
 	}
 	else
-		send(clientfd, "0\n", strlen("0\n"), 0);
+		send(clientfd, "\n00000", strlen("\n00000"), 0);
 
-	memset(buffer, 0, BUFSIZE);	
 	free(tmp);
 	free(buffer);
 	closedir(directory);
@@ -167,11 +164,11 @@ int handleclient(node_t *pclient)
 				return 1;
 			}
 			else
-				send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
+				send(clientfd, "Wrong Request00000\n", strlen("Wrong Request00000\n"), 0);
 		}
 	}
 	else
-		send(clientfd, "0Wrong Request\n", strlen("0Wrong Request\n"), 0);
+		send(clientfd, "Wrong Request00000\n", strlen("Wrong Request00000\n"), 0);
 
 	if(buffer != NULL)
 		free(buffer);
