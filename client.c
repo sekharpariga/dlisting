@@ -27,9 +27,10 @@ void signal_handler_client(int num)
 int main()
 {
 	int msgsize;
-	char *buffertemp, *temp, dataflag;
+	char *buffertemp, *temp;
+	char ending[10];
 	struct sockaddr_in seraddr;
-	buffer = (char *) malloc(BUFSIZE * sizeof(char));
+	buffer = malloc((BUFSIZE + 5) * sizeof(char));
 	
 	seraddr.sin_family = AF_INET;
 	seraddr.sin_addr.s_addr = inet_addr(SERVERIP);
@@ -71,22 +72,33 @@ int main()
 			if(strncmp(buffer + sizeof(int), "bye", sizeof("bye")) == 0)
 			{
 				close(socketfd);
-				free(buffer);
+				if(buffer != NULL)
+					free(buffer);
 				exit(0);
 			}
 			memset(buffer, 0, BUFSIZE);
 
-			do
+			while(true)
 			{
-				msgsize = read(socketfd, buffer, BUFSIZE);
-				dataflag = buffer[0];
-				printf("\ndataflag:%c\n", dataflag);
-				if(strlen(buffer) > 0 && strlen(buffer) < BUFSIZE)
-				buffer[strlen(buffer)] = 0;
-				
-				printf("%s", buffer + 1);
-				memset(buffer, 0, BUFSIZE);
-			}while(dataflag != '0');
+				msgsize = read(socketfd, buffer, BUFSIZE + 5);
+				buffer[msgsize] = 0;
+				snprintf(ending, 6, "%s", buffer + (strlen(buffer) - 5));
+
+				if(strcmp(ending, "#####") == 0)
+				{
+					buffer[strlen(buffer) - 5] = 0;
+					printf("%s", buffer);
+					fflush(stdin);
+					memset(buffer, 0, BUFSIZE + 5);
+					break;
+				}
+				else
+				{
+					printf("%s", buffer);
+					fflush(stdin);
+					memset(buffer, 0, BUFSIZE + 5);
+				}
+			}
 		}
 		memset(buffer, 0, BUFSIZE);
 	}

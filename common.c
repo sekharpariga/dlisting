@@ -24,7 +24,7 @@ void cdfun(char *path, node_t *pclient)
 		printf("pwd buffer is wrong:%d\n", *(pclient->client_socket));
 
 	pthread_mutex_unlock(&lock);
-	send(*(pclient->client_socket), "0\n", strlen("0\n"), 0);
+	send(*(pclient->client_socket), "#####", strlen("#####"), 0);
 }
 
 char *pwdfun(node_t *pclient)
@@ -51,8 +51,9 @@ void lsfun(node_t *pclient)
 	int msglen = 0;
 	int clientfd = *(pclient->client_socket);
 	char *filectime;
-	char *buffer = (char *) malloc((BUFSIZE + 5) * sizeof(char));
-	char *tmp = (char *) malloc(BUFSIZE * sizeof(char));
+	char *buffer = malloc(BUFSIZE * sizeof(char));
+	char *tmp = malloc(BUFSIZE * sizeof(char));
+	char ending[] = "#####";
 	struct dirent *dir;
 	struct stat type;
 
@@ -92,10 +93,10 @@ void lsfun(node_t *pclient)
 				}
 				else
 				{
-					snprintf(buffer, BUFSIZE + 5, "%s00000", buffer);
+					printf("\nbig list\n");
 					send(clientfd, buffer, strlen(buffer), 0);
-					memset(buffer, 0, BUFSIZE + 5);
-					strlcpy(buffer, tmp, cpylen);
+					memset(buffer, 0, BUFSIZE);
+					snprintf(buffer, cpylen, "%s", tmp);
 					msglen = cpylen;
 					cpylen = 0;
 				}
@@ -108,14 +109,11 @@ void lsfun(node_t *pclient)
 			memset(tmp, 0, BUFSIZE);
 		}
 
-		if(msglen != 0)
-		{
-			snprintf(buffer, BUFSIZE + 5, "%s00000", buffer);
+		if(msglen != 0 && cpylen != 0)
 			send(clientfd, buffer, strlen(buffer), 0);
-		}
 	}
-	else
-		send(clientfd, "\n00000", strlen("\n00000"), 0);
+
+	send(clientfd, ending, strlen(ending), 0);		//sending msg ending for client read to close
 
 	free(tmp);
 	free(buffer);
@@ -129,6 +127,7 @@ int handleclient(node_t *pclient)
 	int msgsize = 0, clientfd = *(pclient->client_socket);
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
+	FILE *file = fdopen(clientfd, "w+");
 
 	read(clientfd, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
@@ -149,12 +148,15 @@ int handleclient(node_t *pclient)
 			else if(strcmp(task->cmd, "pwd") == 0)
 			{
 				int len = strlen(pclient->pwd);
-				char *sendbuffer = malloc(len * sizeof(char));
-				strlcpy(sendbuffer, pclient->pwd, len);
-				printf("len:%d\tbuffer:%s\n", len, sendbuffer);
-
-				snprintf(buffer, BUFSIZE, "0%s\n", sendbuffer);
-				send(clientfd, buffer, BUFSIZE, 0);
+				free(buffer);
+				char *sendbuffer = malloc((len+6) * sizeof(char));
+				snprintf(sendbuffer, len + 6, "%s%s", pclient->pwd, "#####");
+				printf("sending pwd:%s\n", sendbuffer);
+				fflush(file);
+				send(clientfd, sendbuffer, len + 6, 0);
+				fflush(file);
+				buffer = NULL;
+				free(sendbuffer);
 			}
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
@@ -164,11 +166,11 @@ int handleclient(node_t *pclient)
 				return 1;
 			}
 			else
-				send(clientfd, "Wrong Request00000\n", strlen("Wrong Request00000\n"), 0);
+				send(clientfd, "Wrong Request#####", strlen("Wrong Request#####"), 0);
 		}
 	}
 	else
-		send(clientfd, "Wrong Request00000\n", strlen("Wrong Request00000\n"), 0);
+		send(clientfd, "Wrong Request#####", strlen("Wrong Request#####"), 0);
 
 	if(buffer != NULL)
 		free(buffer);
