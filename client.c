@@ -87,20 +87,22 @@ int main()
 				if(strcmp(ending, "#####") == 0)
 				{
 					buffer[strlen(buffer) - 5] = 0;
-					printf("%s", buffer);
-					fflush(stdin);
-					memset(buffer, 0, BUFSIZE + 5);
+
+					if(buffer[strlen(buffer) - 1] == '\n')
+						printf("%s", buffer);
+					else
+						printf("%s\n", buffer);
+					fflush(stdout);
 					break;
 				}
 				else
 				{
 					printf("%s", buffer);
-					fflush(stdin);
 					memset(buffer, 0, BUFSIZE + 5);
 				}
 			}
 		}
-		memset(buffer, 0, BUFSIZE);
+		memset(buffer, 0, BUFSIZE + 5);
 	}
 	free(buffer);
 	close(socketfd);
