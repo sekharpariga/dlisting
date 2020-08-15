@@ -49,6 +49,9 @@ void lsfun(node_t *pclient)
 	int status;
 	int cpylen = 0;
 	int msglen = 0;
+	unsigned int tt_count = 0;
+	unsigned int no_files = 0;
+	unsigned int no_sends = 0;
 	int clientfd = *(pclient->client_socket);
 	char *filectime;
 	char *buffer = malloc(BUFSIZE * sizeof(char));
@@ -76,13 +79,11 @@ void lsfun(node_t *pclient)
 			if(status == 0)
 			{
 				filectime = ctime(&type.st_ctime);
-				cpylen = strlen("\t") * 2 + strlen(dir->d_name) + strlen(filectime) ;
-				cpylen = dir->d_type == DT_REG ? cpylen + 4: cpylen + 3 ;
 
 				if(dir->d_type != DT_REG)
-					snprintf(tmp, BUFSIZE, "dir\t%s\t%s", dir->d_name, filectime);
+					cpylen = snprintf(tmp, BUFSIZE, "dir\t%s\t%s", dir->d_name, filectime);
 				else
-					snprintf(tmp, BUFSIZE, "file\t%s\t%s", dir->d_name, filectime);
+					cpylen = snprintf(tmp, BUFSIZE, "file\t%s\t%s", dir->d_name, filectime);
 
 				tmp[cpylen] = 0;
 
@@ -90,15 +91,20 @@ void lsfun(node_t *pclient)
 				{
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
+					no_files += 1;
 				}
 				else
 				{
-					printf("\nbig list\n");
+					tt_count += msglen;
+					printf("%s", buffer);
+					fflush(stdout);
 					send(clientfd, buffer, strlen(buffer), 0);
-					memset(buffer, 0, BUFSIZE);
+					memset(buffer, 0, BUFSIZE + 5);
 					snprintf(buffer, cpylen, "%s", tmp);
 					msglen = cpylen;
 					cpylen = 0;
+					no_files += 1;
+					no_sends += 1;
 				}
 			}
 			else
@@ -108,12 +114,15 @@ void lsfun(node_t *pclient)
 			}
 			memset(tmp, 0, BUFSIZE);
 		}
-
-		if(msglen != 0 && cpylen != 0)
-			send(clientfd, buffer, strlen(buffer), 0);
 	}
 
+	cpylen = strlen(buffer);
+	if(msglen == cpylen)
+		send(clientfd, buffer, strlen(buffer), 0);
+
 	send(clientfd, ending, strlen(ending), 0);		//sending msg ending for client read to close
+
+	printf("\nlssize :%d\tnofile:%d, msglen:%d\tcpylen:%d\tno_sends:%d\n", tt_count + msglen, no_files, msglen, cpylen, no_sends);
 
 	free(tmp);
 	free(buffer);
