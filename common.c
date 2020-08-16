@@ -129,7 +129,6 @@ int handleclient(node_t *pclient)
 	int msgsize = 0, clientfd = *(pclient->client_socket);
 	buffer = (char *) malloc(BUFSIZE * sizeof(char));
 	buffertemp = buffer;
-	FILE *file = fdopen(clientfd, "w+");
 
 	read(clientfd, buffer, BUFSIZE);
 	memcpy(&msgsize, buffer, sizeof(int));
@@ -150,20 +149,16 @@ int handleclient(node_t *pclient)
 			else if(strcmp(task->cmd, "pwd") == 0)
 			{
 				int len = strlen(pclient->pwd);
-				free(buffer);
 				char *sendbuffer = malloc((len+6) * sizeof(char));
-				snprintf(sendbuffer, len + 6, "%s%s", pclient->pwd, "#####");
-				printf("sending pwd:%s\n", sendbuffer);
-				fflush(file);
-				send(clientfd, sendbuffer, len + 6, 0);
-				fflush(file);
-				buffer = NULL;
+			//	snprintf(sendbuffer, len + 5, "%s%s", pclient->pwd, "#####");
+				strlcpy(sendbuffer, pclient->pwd, len + 5);
+				send(clientfd, sendbuffer, len + 5, 0);
 				free(sendbuffer);
+				free(buffer);
 			}
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
 				free(buffer);
-				buffer = NULL;
 				free(pclient);
 				return 1;
 			}
