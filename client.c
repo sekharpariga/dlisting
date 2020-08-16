@@ -86,9 +86,9 @@ int main()
 				if(strcmp(ending, "#####") == 0)
 				{
 					printf("msgsize:%d\n", msgsize);
-					buffer[msgsize - 5] = 0;
+					buffer[msgsize - 6] = 0;
 
-					if(buffer[ msgsize - 6] == '\n')
+					if(buffer[msgsize - 6] == '\n')
 						printf("%s", buffer);
 					else
 						printf("%s\n", buffer);

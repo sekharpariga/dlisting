@@ -149,10 +149,10 @@ int handleclient(node_t *pclient)
 			else if(strcmp(task->cmd, "pwd") == 0)
 			{
 				int len = strlen(pclient->pwd);
-				char *sendbuffer = malloc((len+6) * sizeof(char));
-			//	snprintf(sendbuffer, len + 5, "%s%s", pclient->pwd, "#####");
-				strlcpy(sendbuffer, pclient->pwd, len + 5);
-				send(clientfd, sendbuffer, len + 5, 0);
+				char *sendbuffer = malloc((len + 6) * sizeof(char));
+				strlcpy(sendbuffer, pclient->pwd, len);
+				strlcpy(sendbuffer + len, "#####", 6);
+				send(clientfd, sendbuffer, len + 6, 0);
 				free(sendbuffer);
 				free(buffer);
 			}
@@ -168,9 +168,6 @@ int handleclient(node_t *pclient)
 	}
 	else
 		send(clientfd, "Wrong Request#####", strlen("Wrong Request#####"), 0);
-
-	if(buffer != NULL)
-		free(buffer);
 
 	return 0;
 }
