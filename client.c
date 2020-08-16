@@ -85,9 +85,9 @@ int main()
 
 				if(strcmp(ending, "#####") == 0)
 				{
-					buffer[strlen(buffer) - 5] = 0;
+					buffer[msglen - 5] = 0;
 
-					if(buffer[strlen(buffer) - 1] == '\n')
+					if(buffer[ msglen - 6] == '\n')
 						printf("%s", buffer);
 					else
 						printf("%s\n", buffer);
