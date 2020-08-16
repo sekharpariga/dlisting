@@ -49,9 +49,6 @@ void lsfun(node_t *pclient)
 	int status;
 	int cpylen = 0;
 	int msglen = 0;
-	unsigned int tt_count = 0;
-	unsigned int no_files = 0;
-	unsigned int no_sends = 0;
 	int clientfd = *(pclient->client_socket);
 	char *filectime;
 	char *buffer = malloc(BUFSIZE * sizeof(char));
@@ -91,20 +88,19 @@ void lsfun(node_t *pclient)
 				{
 					strlcpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
-					no_files += 1;
 				}
 				else
 				{
-					tt_count += msglen;
-					printf("%s", buffer);
+					buffer[msglen] = 0;
+					int count;
+					count = send(clientfd, buffer, msglen, 0);
+					printf("count:%d\n--%s--\n", count, buffer);
 					fflush(stdout);
-					send(clientfd, buffer, strlen(buffer), 0);
-					memset(buffer, 0, BUFSIZE + 5);
-					snprintf(buffer, cpylen, "%s", tmp);
+
+					memset(buffer, 0, BUFSIZE);
+					strlcpy(buffer, tmp, cpylen);
 					msglen = cpylen;
 					cpylen = 0;
-					no_files += 1;
-					no_sends += 1;
 				}
 			}
 			else
@@ -116,13 +112,10 @@ void lsfun(node_t *pclient)
 		}
 	}
 
-	cpylen = strlen(buffer);
-	if(msglen == cpylen)
-		send(clientfd, buffer, strlen(buffer), 0);
+	if(msglen > 0 && cpylen != 0)
+		send(clientfd, buffer, msglen, 0);
 
 	send(clientfd, ending, strlen(ending), 0);		//sending msg ending for client read to close
-
-	printf("\nlssize :%d\tnofile:%d, msglen:%d\tcpylen:%d\tno_sends:%d\n", tt_count + msglen, no_files, msglen, cpylen, no_sends);
 
 	free(tmp);
 	free(buffer);

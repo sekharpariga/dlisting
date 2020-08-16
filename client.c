@@ -10,7 +10,6 @@ void sigexit()
 
 	snprintf(buffer + sizeof(int), BUFSIZE, "bye");
 	write(socketfd, buffer, 3*sizeof(char) + sizeof(int));
-
 	close(socketfd);
 	exit(0);
 }
@@ -30,7 +29,7 @@ int main()
 	char *buffertemp, *temp;
 	char ending[10];
 	struct sockaddr_in seraddr;
-	buffer = malloc((BUFSIZE + 5) * sizeof(char));
+	buffer = malloc(BUFSIZE * sizeof(char));
 	
 	seraddr.sin_family = AF_INET;
 	seraddr.sin_addr.s_addr = inet_addr(SERVERIP);
@@ -72,15 +71,15 @@ int main()
 			if(strncmp(buffer + sizeof(int), "bye", sizeof("bye")) == 0)
 			{
 				close(socketfd);
-				if(buffer != NULL)
-					free(buffer);
-				exit(0);
+				free(buffer);
+				close(socketfd);
+				return 0;
 			}
 			memset(buffer, 0, BUFSIZE);
 
 			while(true)
 			{
-				msgsize = read(socketfd, buffer, BUFSIZE + 5);
+				msgsize = read(socketfd, buffer, BUFSIZE);
 				buffer[msgsize] = 0;
 				snprintf(ending, 6, "%s", buffer + (strlen(buffer) - 5));
 
@@ -98,13 +97,14 @@ int main()
 				else
 				{
 					printf("%s", buffer);
-					memset(buffer, 0, BUFSIZE + 5);
+					fflush(stdout);
+					memset(buffer, 0, BUFSIZE);
 				}
 			}
 		}
-		memset(buffer, 0, BUFSIZE + 5);
+		memset(buffer, 0, BUFSIZE);
 	}
-	free(buffer);
+
 	close(socketfd);
 	return 0;
 }
