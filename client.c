@@ -8,7 +8,7 @@ void sigexit()
 	int numbytes = 3;
 	memcpy(buffer, &numbytes, sizeof(int));
 
-	snprintf(buffer + sizeof(int), BUFSIZE, "bye");
+	snprintf(buffer + sizeof(int), BUFSIZE, "bye");		//sending "bye" to server to close connection
 	write(socketfd, buffer, 3*sizeof(char) + sizeof(int));
 	close(socketfd);
 	exit(0);
@@ -70,7 +70,6 @@ int main()
 
 			if(strncmp(buffer + sizeof(int), "bye", sizeof("bye")) == 0)
 			{
-				close(socketfd);
 				free(buffer);
 				close(socketfd);
 				return 0;
@@ -81,13 +80,11 @@ int main()
 			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
 				buffer[msgsize] = 0;
-				snprintf(ending, 6, "%s", buffer + (strlen(buffer) - 5));
+				snprintf(ending, 6, "%s", buffer + (msgsize - 5));
 
 				if(strcmp(ending, "#####") == 0)
 				{
-					printf("msgsize:%d\n", msgsize);
-					buffer[msgsize - 6] = 0;
-
+					buffer[msgsize - 5] = 0;
 					if(buffer[msgsize - 6] == '\n')
 						printf("%s", buffer);
 					else
