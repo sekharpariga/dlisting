@@ -62,11 +62,10 @@ Instructions to build:
 tools required : gcc and make
 
 root@kali:~/dlisting# make all
-gcc -c lsfun.c -o lsfun.o
-gcc -c request.c -o request.o
-gcc -c queue.c -o queue.o
-gcc -g -Wall -Wextra -pedantic  server.c lsfun.o request.o queue.o -o server.o -lpthread
-gcc -g -Wall -Wextra -pedantic   client.c -o client.o
+gcc -g -Wall -Wextra -pedantic  -c common.c -o common.o
+gcc -g -Wall -Wextra -pedantic  -c queue.c -o queue.o
+gcc -g -Wall -Wextra -pedantic  server.c common.o queue.o -o server.o -lpthread
+gcc -g -Wall -Wextra -pedantic  client.c -o client.o
 
 
 commands output:
@@ -81,34 +80,27 @@ pwd
 /root/dlisting
 
 ls
-file	queue.o		Fri Aug  7 11:38:56 2020
-file	request.c		Thu Aug  6 15:39:48 2020
-file	server.o		Fri Aug  7 11:38:56 2020
-file	singleserver.c		Thu Aug  6 15:39:48 2020
-file	makefile		Thu Aug  6 15:39:48 2020
-file	lsfun.c		Thu Aug  6 16:05:34 2020
-file	queue.h		Thu Aug  6 15:39:48 2020
-file	request.o		Fri Aug  7 11:38:56 2020
-file	lsfun.o		Fri Aug  7 11:38:56 2020
-file	server.c		Thu Aug  6 16:59:06 2020
-file	TODO		Thu Aug  6 15:39:48 2020
-file	client.c		Thu Aug  6 16:48:23 2020
-file	queue.c		Thu Aug  6 15:39:48 2020
-file	request.h		Thu Aug  6 15:39:48 2020
-file	test.c		Thu Aug  6 15:39:48 2020
-file	common.h		Thu Aug  6 15:39:48 2020
-file	README		Thu Aug  6 15:44:12 2020
-file	.gitignore		Thu Aug  6 15:39:48 2020
-file	lsfun.h		Thu Aug  6 15:39:48 2020
-file	client.o		Fri Aug  7 11:38:56 2020
-file	README.md		Thu Aug  6 15:39:48 2020
-dir 	.git		Fri Aug  7 11:36:45 2020
+file	queue.o	Sun Aug 16 23:47:54 2020
+file	server.o	Sun Aug 16 23:47:54 2020
+file	makefile	Wed Aug 12 04:57:01 2020
+file	queue.h	Tue Aug 11 06:34:43 2020
+dir	ccc	Sun Aug  9 12:11:53 2020
+file	server.c	Tue Aug 11 09:18:50 2020
+file	common.c	Sun Aug 16 15:05:27 2020
+file	client.c	Sun Aug 16 15:06:50 2020
+file	queue.c	Tue Aug 11 08:11:20 2020
+file	common.h	Sun Aug 16 15:00:01 2020
+file	common.o	Sun Aug 16 23:47:54 2020
+file	README	Tue Aug 11 06:35:01 2020
+file	.gitignore	Sat Aug  8 17:06:34 2020
+file	client.o	Sun Aug 16 23:47:54 2020
+dir	.git	Sun Aug 16 15:14:36 2020
 
 
 cd ..
  
 pwd
-/root
+/root/dlisting
 
 bye
 root@kali:~/dlisting#
@@ -126,5 +118,13 @@ Description:	Kali GNU/Linux Rolling
 Release:		2020.3
 
 gcc version 9.3.0 (Debian 9.3.0-15) 
+
+buffer & THREADPOOL configuration file common.h
+
+current settings:
+buffer size 1400 chars
+THREADPOOL 10 threads
+PATHMAX 1400 chars
+server port 54321
 
 
