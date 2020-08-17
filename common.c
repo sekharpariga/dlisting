@@ -148,7 +148,7 @@ int handleclient(node_t *pclient)
 				char *sendbuffer = malloc((len + 6) * sizeof(char));
 				strlcpy(sendbuffer, pclient->pwd, len);
 				strlcpy(sendbuffer + len, "#####", 6);
-				send(clientfd, sendbuffer, len + 6, 0);
+				send(clientfd, sendbuffer, len + 5, 0);
 				free(sendbuffer);
 			}
 			else if(strcmp(task->cmd, "bye") == 0)

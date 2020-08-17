@@ -80,12 +80,12 @@ int main()
 			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
 				buffer[msgsize] = 0;
-				snprintf(ending, 6, "%s", buffer + (msgsize - 5));
+				snprintf(ending, 6, "%s", buffer + (strlen(buffer) - 5));
 
 				if(strcmp(ending, "#####") == 0)
 				{
 					buffer[msgsize - 5] = 0;
-					if(buffer[msgsize - 6] == '\n')
+					if(buffer[msgsize - 5] == '\n')
 						printf("%s", buffer);
 					else
 						printf("%s\n", buffer);

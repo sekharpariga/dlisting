@@ -126,5 +126,3 @@ buffer size 1400 chars
 THREADPOOL 10 threads
 PATHMAX 1400 chars
 server port 54321
-
-
