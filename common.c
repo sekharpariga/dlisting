@@ -92,11 +92,7 @@ void lsfun(node_t *pclient)
 				else
 				{
 					buffer[msglen] = 0;
-					int count;
-					count = send(clientfd, buffer, msglen, 0);
-					printf("count:%d\n--%s--\n", count, buffer);
-					fflush(stdout);
-
+					send(clientfd, buffer, msglen, 0);
 					memset(buffer, 0, BUFSIZE);
 					strlcpy(buffer, tmp, cpylen);
 					msglen = cpylen;
@@ -115,7 +111,7 @@ void lsfun(node_t *pclient)
 	if(msglen > 0 && cpylen != 0)
 		send(clientfd, buffer, msglen, 0);
 
-	send(clientfd, ending, strlen(ending), 0);		//sending msg ending for client read to close
+	send(clientfd, ending, strlen(ending), 0);	//sending msg ending for client read to close
 
 	free(tmp);
 	free(buffer);
@@ -154,7 +150,6 @@ int handleclient(node_t *pclient)
 				strlcpy(sendbuffer + len, "#####", 6);
 				send(clientfd, sendbuffer, len + 6, 0);
 				free(sendbuffer);
-				free(buffer);
 			}
 			else if(strcmp(task->cmd, "bye") == 0)
 			{
@@ -168,7 +163,8 @@ int handleclient(node_t *pclient)
 	}
 	else
 		send(clientfd, "Wrong Request#####", strlen("Wrong Request#####"), 0);
-
+	
+	free(buffer);
 	return 0;
 }
 
