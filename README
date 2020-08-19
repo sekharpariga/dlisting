@@ -114,8 +114,8 @@ bye
 root@kali:~/dlisting#
 
 Limitations:
-1. ls buffer size is of 4096 chars
-2. pwd path max buffer size is 4096 chars
+1. ls buffer size is of 1400 chars
+2. pwd path max buffer size is 1400 chars
 
 Assumptions:
 1. due to not having file birth_date<created date> used the 
