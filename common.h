@@ -26,9 +26,9 @@
 #define BACKLOG 50
 #define SERVERIP "127.0.0.1"
 #define PORT 54321
-#define THREADPOOL 2
+#define THREADPOOL 10
 #define true 1
-#define strlcpy strncpy			//not fund strlcpy in glibc
+#define strlcpy strncpy			//not exit strlcpy in glibc in my linux distro
 #define st_time st_ctime.tv_sec
 
 struct parsedata
@@ -41,7 +41,7 @@ void signal_handler(int signum);
 
 void cdfun(char *path, node_t *pclient);
 
-char  *pwdfun(node_t *pclient);
+char *pwdfun(node_t *pclient);
 
 int handleclient(node_t *pclient);
 

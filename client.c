@@ -8,9 +8,8 @@ void sigexit()
 	int numbytes = 3;
 	memcpy(buffer, &numbytes, sizeof(int));
 
-	snprintf(buffer + sizeof(int), BUFSIZE, "bye");
+	snprintf(buffer + sizeof(int), BUFSIZE, "bye");		//sending "bye" to server to close connection
 	write(socketfd, buffer, 3*sizeof(char) + sizeof(int));
-
 	close(socketfd);
 	exit(0);
 }
@@ -27,9 +26,10 @@ void signal_handler_client(int num)
 int main()
 {
 	int msgsize;
-	char *buffertemp, *temp, dataflag;
+	char *buffertemp, *temp;
+	char ending[10];
 	struct sockaddr_in seraddr;
-	buffer = (char *) malloc(BUFSIZE * sizeof(char));
+	buffer = malloc(BUFSIZE * sizeof(char));
 	
 	seraddr.sin_family = AF_INET;
 	seraddr.sin_addr.s_addr = inet_addr(SERVERIP);
@@ -70,27 +70,39 @@ int main()
 
 			if(strncmp(buffer + sizeof(int), "bye", sizeof("bye")) == 0)
 			{
-				close(socketfd);
 				free(buffer);
-				exit(0);
+				close(socketfd);
+				return 0;
 			}
 			memset(buffer, 0, BUFSIZE);
 
-			do
+			while(true)
 			{
 				msgsize = read(socketfd, buffer, BUFSIZE);
-				dataflag = buffer[0];
-				printf("\ndataflag:%c\n", dataflag);
-				if(strlen(buffer) > 0 && strlen(buffer) < BUFSIZE)
-				buffer[strlen(buffer)] = 0;
-				
-				printf("%s", buffer + 1);
-				memset(buffer, 0, BUFSIZE);
-			}while(dataflag != '0');
+				buffer[msgsize] = 0;
+				snprintf(ending, 6, "%s", buffer + (strlen(buffer) - 5));
+
+				if(strcmp(ending, "#####") == 0)
+				{
+					buffer[msgsize - 5] = 0;
+					if(buffer[msgsize - 5] == '\n')
+						printf("%s", buffer);
+					else
+						printf("%s\n", buffer);
+					fflush(stdout);
+					break;
+				}
+				else
+				{
+					printf("%s", buffer);
+					fflush(stdout);
+					memset(buffer, 0, BUFSIZE);
+				}
+			}
 		}
 		memset(buffer, 0, BUFSIZE);
 	}
-	free(buffer);
+
 	close(socketfd);
 	return 0;
 }
