@@ -115,8 +115,8 @@ Assumptions:
 Linux distribution used : 
 Distributor ID:	ArchLinux
 Description:	Linux Rolling
-Release:		2020.3
+Release:		2021.1
 
-gcc version 9.3.0 (Debian 9.3.0-15) 
+gcc (GCC) 10.2.0
 
-buffer & THREADPOOL configuration file common.h
+configuration settings file : common.h
