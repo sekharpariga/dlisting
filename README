@@ -122,16 +122,18 @@ bye
 dlisting :
 
 Limitations:
+-----------
 2. PATH Size is 4096 bytes
 
 Assumptions:
+-----------
 1. added birthtime macro for handling missing of file birthtime in some OS.
 
-Linux distribution used : 
-Distributor ID:	ArchLinux
-Description:	Linux Rolling
-Release:		2021.1
-
-gcc (GCC) 10.2.0
+Linux distribution info: 
+-----------------------
+Distributor ID		: ArchLinux
+Description		: Linux Rolling
+Release			: 2021.1
+gcc version		: gcc (GCC) 10.2.0
 
 configuration settings file : common.h
