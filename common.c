@@ -35,13 +35,13 @@ void cdfun(char *path, node_t *pclient)
 
 char * pwdfun(node_t *pclient)
 {
-	char *old_path = malloc(PATHMAX * sizeof(char));
-	snprintf(old_path, PATHMAX, "%s", pclient->pwd);
+	char *old_path = malloc(PATH_MAX * sizeof(char));
+	snprintf(old_path, PATH_MAX, "%s", pclient->pwd);
 	
-	if(getcwd(pclient->pwd, PATHMAX) == NULL)		//on failure of setting path, restores prev path
+	if(getcwd(pclient->pwd, PATH_MAX) == NULL)		//on failure of setting path, restores prev path
 	{
-		memset(pclient->pwd, 0, PATHMAX);
-		snprintf(pclient->pwd, PATHMAX, "%s", old_path);
+		memset(pclient->pwd, 0, PATH_MAX);
+		snprintf(pclient->pwd, PATH_MAX, "%s", old_path);
 		free(old_path);
 		return strdup("E");
 	}

@@ -19,10 +19,10 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <signal.h>
+#include <linux/limits.h>
 #include "queue.h"
 
 #define BUFSIZE 1400
-#define PATHMAX 1400
 #define BACKLOG 50
 #define SERVERIP "127.0.0.1"
 #define PORT 54321

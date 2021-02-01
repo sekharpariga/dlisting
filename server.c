@@ -7,7 +7,7 @@ int main()
 	pthread_t thread_id[THREADPOOL];
 
 	struct sockaddr_in address;
-	char *mainpwd = malloc(sizeof(char) * PATHMAX);
+	char *mainpwd = malloc(sizeof(char) * PATH_MAX);
 
 	int addrlen = sizeof(address);
 	int opt = 1;
@@ -19,8 +19,8 @@ int main()
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(PORT);
 
-	memset(mainpwd, 0, PATHMAX);
-	if(getcwd(mainpwd, PATHMAX) == NULL)
+	memset(mainpwd, 0, PATH_MAX);
+	if(getcwd(mainpwd, PATH_MAX) == NULL)
 		exit(1);
 
 	if(signal(SIGINT, signal_handler) == SIG_ERR)		//ctrl-c
