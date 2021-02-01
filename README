@@ -1,5 +1,5 @@
 					Directory Listing Server
-
+					------------------------
 
 This is a simple directory listing server, that serves ls, cd, pwd of directory functions.
 
@@ -10,31 +10,40 @@ cointains each clients socketfd and present working directory as a queue node.
 
 Following are the server directory listing commands and corresponding mapped functions.
 
-commands			function name
+commands			function
+--------			--------
 ls				lsfun
 cd				cdfun
 
 
-Command implementation detials:
+client command:
+--------------
+
 ls:
-	when client sends ls  to the server, lsfun checks the pwd of client from queue node and list the 
+--
+	when client sends ls to the server, lsfun checks the pwd of client from queue node and list the 
 files under it.
 
 
 cd:
+--
 	when client sends cd  to the server, cdfun first changes server directory to queue->pwd path and then
 its tries to change client requested path. If server succeeds to new change client requested relative/obsolute path,
 it updates the queue->pwd path. If client asks for wrong path it, server replies to the client as wrong input.
 
 pwd:
+---
 	When client first connects to the server, client session queue->pwd will have servers running directory path.
 so, whenever client send pwd, server sends the queue->pwd buffer.
 
 bye:
+---
 	When client sends bye, server closes the client connection by removing the client session queue node.
 
 
 Queue data structure details:
+----------------------------
+
 	typedef struct node 
 	{
 	        int *client_socket;
@@ -47,19 +56,26 @@ Queue data structure details:
 	node_t *dequeue();
 
 enqueue:
+-------
 	when client successfully connects to server, this function creates the above queue node into the queue.
 
 dequeue:
+-------
 	when client sends "bye", server removes the clients queue node and closes the client connection.
 
 
 Multi-threading:
+---------------
 	when server successfully starts, it will create thread pool of max THREADPOOL threads.
 server uses pthread mutex lock to syn operations on adjusting session queue data.
 
 
 Instructions to build:
-tools required : gcc and make
+----------------------
+make build system is used to compile the entire code.
+
+1. make 	--- will build the server.o and client.o linux executables
+2. make clean	--- cleans the previod build cleared (deleted obj files created).
 
 dlisting :make
 gcc -g -Wall -Wextra -pedantic  -c common.c -o common.o
@@ -67,41 +83,40 @@ gcc -g -Wall -Wextra -pedantic  -c queue.c -o queue.o
 gcc -g -Wall -Wextra -pedantic  server.c common.o queue.o -o server.o -lpthread
 gcc -g -Wall -Wextra -pedantic  client.c -o client.o
 
-
-commands output:
+server/client running output:
+----------------------------
 
 dlisting :./server.o 
 new conn:4
 closed conn:4
 
-
 dlisting :./client.o 
+
 pwd
 /root/dlisting
 
-ls
-file	README	Mon Feb  1 07:01:46 2021
-file	common.h	Mon Feb  1 07:01:46 2021
-file	client.o	Mon Feb  1 07:56:11 2021
-file	common.o	Mon Feb  1 07:56:09 2021
-file	client.c	Mon Feb  1 07:01:46 2021
-file	server.c	Mon Feb  1 07:01:46 2021
-file	.gitignore	Mon Feb  1 07:01:46 2021
-file	queue.h	Mon Feb  1 07:01:46 2021
-file	server.o	Mon Feb  1 07:56:10 2021
-file	LICENSE	Mon Feb  1 07:01:46 2021
-file	queue.o	Mon Feb  1 07:56:09 2021
-file	queue.c	Mon Feb  1 07:01:46 2021
-file	common.c	Mon Feb  1 07:29:39 2021
-dir	.git	Mon Feb  1 07:34:00 2021
-file	makefile	Mon Feb  1 07:01:46 2021
-file	printme.c	Mon Feb  1 07:54:31 2021
+cd ../..
 
-
-cd ..
- 
 pwd
-/root/dlisting
+/
+ls -lrt
+dir	tmp	Mon Feb  1 09:18:07 2021
+dir	proc	Thu Jan  1 00:00:06 1970
+dir	boot	Thu Jan  1 00:00:00 1970
+dir	lib	Mon Feb  1 08:36:52 2021
+dir	dev	Sat Jan 30 12:19:13 2021
+dir	bin	Mon Feb  1 08:35:03 2021
+dir	srv	Mon Oct 26 17:34:43 2020
+dir	opt	Wed Oct 14 18:56:06 2020
+dir	etc	Mon Feb  1 08:36:53 2021
+dir	run	Sat Jan 30 12:19:20 2021
+dir	root	Mon Feb  1 09:18:05 2021
+dir	usr	Mon Feb  1 08:36:59 2021
+dir	home	Mon Dec 21 15:55:36 2020
+dir	sbin	Mon Feb  1 08:35:03 2021
+dir	var	Mon Dec 21 03:51:56 2020
+dir	sys	Thu Jan  1 00:00:06 1970
+dir	mnt	Sat Oct 10 13:22:42 2020
 
 bye
 dlisting :
