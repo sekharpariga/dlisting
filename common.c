@@ -1,5 +1,11 @@
 #include "common.h"
 
+#ifdef HAVE_ST_BIRTHTIME
+#define birthtime(x)	x.st_birthtime
+#else
+#define birthtime(x)	x.st_ctime
+#endif
+
 extern pthread_mutex_t lock;
 
 void cdfun(char *path, node_t *pclient)
@@ -27,7 +33,7 @@ void cdfun(char *path, node_t *pclient)
 	send(*(pclient->client_socket), "#####", strlen("#####"), 0);
 }
 
-char *pwdfun(node_t *pclient)
+char * pwdfun(node_t *pclient)
 {
 	char *old_path = malloc(PATHMAX * sizeof(char));
 	snprintf(old_path, PATHMAX, "%s", pclient->pwd);
@@ -75,7 +81,7 @@ void lsfun(node_t *pclient)
 
 			if(status == 0)
 			{
-				filectime = ctime(&type.st_ctime);
+				filectime = ctime(&birthtime(type));
 
 				if(dir->d_type != DT_REG)
 					cpylen = snprintf(tmp, BUFSIZE, "dir\t%s\t%s", dir->d_name, filectime);
