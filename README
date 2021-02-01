@@ -3,12 +3,11 @@
 
 This is a simple directory listing server, that serves ls, cd, pwd of directory functions.
 
-	Server is implemented using multi-thread pthread library, to serve multiple clients simulteniously.
-server keeps the each accepted client session details in the queue data structure. Client session queue 
-cointains each clients socketfd and present working directory as a queue node.
+	Server is implemented using multi-thread pthread library. So, Server has the capability of serving multiple clients parallely.
+server keeps the each accepted client session details in the session queue. In each session queue node cantains connected clients path detial.
 
 
-Following are the server directory listing commands and corresponding mapped functions.
+command and function mappings
 
 commands			function
 --------			--------
@@ -21,24 +20,20 @@ client command:
 
 ls:
 --
-	when client sends ls to the server, lsfun checks the pwd of client from queue node and list the 
-files under it.
-
+	when client sends ls to the server, lsfun checks the pwd of client from queue node and list the files under it.
 
 cd:
 --
-	when client sends cd  to the server, cdfun first changes server directory to queue->pwd path and then
-its tries to change client requested path. If server succeeds to new change client requested relative/obsolute path,
-it updates the queue->pwd path. If client asks for wrong path it, server replies to the client as wrong input.
+	When client sends "cd <path>" to server, then server updates the clinet session path varable relative to server pwd dir.
 
 pwd:
 ---
-	When client first connects to the server, client session queue->pwd will have servers running directory path.
-so, whenever client send pwd, server sends the queue->pwd buffer.
+	When server recieves "pwd" form the client, server replies the stored session path variable value. Initial client pwd is
+	servers's working dir.
 
 bye:
 ---
-	When client sends bye, server closes the client connection by removing the client session queue node.
+	When server recieves "bye" from the client, server closes connection by removing the respective session data from session queue.
 
 
 Queue data structure details:
