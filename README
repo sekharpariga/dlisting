@@ -61,7 +61,7 @@ server uses pthread mutex lock to syn operations on adjusting session queue data
 Instructions to build:
 tools required : gcc and make
 
-root@kali:~/dlisting# make all
+dlisting :make
 gcc -g -Wall -Wextra -pedantic  -c common.c -o common.o
 gcc -g -Wall -Wextra -pedantic  -c queue.c -o queue.o
 gcc -g -Wall -Wextra -pedantic  server.c common.o queue.o -o server.o -lpthread
@@ -70,31 +70,32 @@ gcc -g -Wall -Wextra -pedantic  client.c -o client.o
 
 commands output:
 
-root@kali:~/dlisting# ./server.o 
+dlisting :./server.o 
 new conn:4
 closed conn:4
 
 
-root@kali:~/dlisting# ./client.o 
+dlisting :./client.o 
 pwd
 /root/dlisting
 
 ls
-file	queue.o	Sun Aug 16 23:47:54 2020
-file	server.o	Sun Aug 16 23:47:54 2020
-file	makefile	Wed Aug 12 04:57:01 2020
-file	queue.h	Tue Aug 11 06:34:43 2020
-dir	ccc	Sun Aug  9 12:11:53 2020
-file	server.c	Tue Aug 11 09:18:50 2020
-file	common.c	Sun Aug 16 15:05:27 2020
-file	client.c	Sun Aug 16 15:06:50 2020
-file	queue.c	Tue Aug 11 08:11:20 2020
-file	common.h	Sun Aug 16 15:00:01 2020
-file	common.o	Sun Aug 16 23:47:54 2020
-file	README	Tue Aug 11 06:35:01 2020
-file	.gitignore	Sat Aug  8 17:06:34 2020
-file	client.o	Sun Aug 16 23:47:54 2020
-dir	.git	Sun Aug 16 15:14:36 2020
+file	README	Mon Feb  1 07:01:46 2021
+file	common.h	Mon Feb  1 07:01:46 2021
+file	client.o	Mon Feb  1 07:56:11 2021
+file	common.o	Mon Feb  1 07:56:09 2021
+file	client.c	Mon Feb  1 07:01:46 2021
+file	server.c	Mon Feb  1 07:01:46 2021
+file	.gitignore	Mon Feb  1 07:01:46 2021
+file	queue.h	Mon Feb  1 07:01:46 2021
+file	server.o	Mon Feb  1 07:56:10 2021
+file	LICENSE	Mon Feb  1 07:01:46 2021
+file	queue.o	Mon Feb  1 07:56:09 2021
+file	queue.c	Mon Feb  1 07:01:46 2021
+file	common.c	Mon Feb  1 07:29:39 2021
+dir	.git	Mon Feb  1 07:34:00 2021
+file	makefile	Mon Feb  1 07:01:46 2021
+file	printme.c	Mon Feb  1 07:54:31 2021
 
 
 cd ..
@@ -103,26 +104,19 @@ pwd
 /root/dlisting
 
 bye
-root@kali:~/dlisting#
+dlisting :
 
 Limitations:
-1. ls buffer size is of 1400 chars
-2. pwd path max buffer size is 1400 chars
+2. PATH Size is 4096 bytes
 
 Assumptions:
-1. due to not having file birth_date<created date> used the 
+1. added birthtime macro for handling missing of file birthtime in some OS.
 
 Linux distribution used : 
-Distributor ID:	Kali
-Description:	Kali GNU/Linux Rolling
+Distributor ID:	ArchLinux
+Description:	Linux Rolling
 Release:		2020.3
 
 gcc version 9.3.0 (Debian 9.3.0-15) 
 
 buffer & THREADPOOL configuration file common.h
-
-current settings:
-buffer size 1400 chars
-THREADPOOL 10 threads
-PATHMAX 1400 chars
-server port 54321
