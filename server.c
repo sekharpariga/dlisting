@@ -48,6 +48,9 @@ int main()
 
 	for(int i = 0; i < THREADPOOL; i++)
 		pthread_create(&(thread_id[i]), NULL, &threadhandle, NULL);
+	
+	for(int i = 0; i < THREADPOOL; i++)
+		pthread_join(thread_id[i], NULL);
 
 	while(true)
 	{
@@ -63,9 +66,6 @@ int main()
 			}
 		}
 	}
-
-	for(int i = 0; i < THREADPOOL; i++)
-		pthread_join(thread_id[i], NULL);
 	
 	close(serverfd);
 	return 0;
