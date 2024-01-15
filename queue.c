@@ -15,7 +15,7 @@ void enqueue(int *client_socket, char *path)
 	{
 		newnode->client_socket = client_socket;
 		newnode->next = NULL;
-		strlcpy(newnode->pwd, path, PATH_MAX);
+		strncpy(newnode->pwd, path, PATH_MAX);
 
 		pthread_mutex_lock(&lock);
 		if(tail == NULL)
