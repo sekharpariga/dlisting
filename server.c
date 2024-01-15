@@ -2,7 +2,7 @@
 
 pthread_mutex_t lock;
 
-int main()
+int main(void)
 {
 	pthread_t thread_id[THREADPOOL];
 

@@ -19,7 +19,6 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <signal.h>
-#include <linux/limits.h>
 #include "queue.h"
 
 #define BUFSIZE 1400
@@ -28,7 +27,6 @@
 #define PORT 54321
 #define THREADPOOL 10
 #define true 1
-#define strlcpy strncpy			//not exit strlcpy in glibc in my linux distro
 #define st_time st_ctime.tv_sec
 
 struct parsedata

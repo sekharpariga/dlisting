@@ -92,7 +92,7 @@ void lsfun(node_t *pclient)
 
 				if((cpylen + msglen) < BUFSIZE)
 				{
-					strlcpy(buffer + msglen, tmp, cpylen);
+					strncpy(buffer + msglen, tmp, cpylen);
 					msglen += cpylen;
 				}
 				else
@@ -100,7 +100,7 @@ void lsfun(node_t *pclient)
 					buffer[msglen] = 0;
 					send(clientfd, buffer, msglen, 0);
 					memset(buffer, 0, BUFSIZE);
-					strlcpy(buffer, tmp, cpylen);
+					strncpy(buffer, tmp, cpylen);
 					msglen = cpylen;
 					cpylen = 0;
 				}
@@ -152,8 +152,8 @@ int handleclient(node_t *pclient)
 			{
 				int len = strlen(pclient->pwd);
 				char *sendbuffer = malloc((len + 6) * sizeof(char));
-				strlcpy(sendbuffer, pclient->pwd, len);
-				strlcpy(sendbuffer + len, "#####", 6);
+				strncpy(sendbuffer, pclient->pwd, len);
+				strncpy(sendbuffer + len, "#####", 6);
 				send(clientfd, sendbuffer, len + 5, 0);
 				free(sendbuffer);
 			}

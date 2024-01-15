@@ -27,7 +27,7 @@ void enqueue(int *client_socket, char *path)
 	}
 }
 	
-node_t *dequeue()
+node_t *dequeue(void)
 {
 	if(head == NULL)
 		return NULL;
@@ -42,7 +42,7 @@ node_t *dequeue()
 	}
 }
 
-void display()
+void display(void)
 {
 	node_t *temp = head;
 

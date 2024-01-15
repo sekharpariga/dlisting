@@ -1,6 +1,8 @@
 #ifndef __QUEUE__H
 #define __QUEUE__H
-#include <linux/limits.h>
+
+#define PATH_MAX 4096
+
 typedef struct node 
 {
 	int *client_socket;
@@ -9,7 +11,7 @@ typedef struct node
 } node_t;
 
 void enqueue(int *client_socket, char *pwd);
-node_t *dequeue();
-void display();
+node_t *dequeue(void);
+void display(void);
 
 #endif

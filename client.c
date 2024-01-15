@@ -3,7 +3,7 @@
 int socketfd;
 char *buffer = NULL;
 
-void sigexit()
+void sigexit(void)
 {
 	int numbytes = 3;
 	memcpy(buffer, &numbytes, sizeof(int));
@@ -23,7 +23,7 @@ void signal_handler_client(int num)
 		sigexit();
 }
 
-int main()
+int main(void)
 {
 	int msgsize;
 	char *buffertemp, *temp;
